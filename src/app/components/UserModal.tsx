@@ -3,17 +3,35 @@ import React, { useState } from 'react';
 interface UserModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (user: { name: string; }) => void;
+  onSubmit: (user: { name: string }) => void;
 }
 
 const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit }) => {
   const [name, setName] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({ name});
-    setName('');
-    onClose();
+
+    try {
+      const response = await fetch('/api', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save volunteer');
+      }
+
+      onSubmit({ name });
+      setName('');
+      onClose();
+    } catch (error) {
+      console.error('Error saving volunteer:', error);
+      alert('Failed to save volunteer. Please try again.');
+    }
   };
 
   if (!isOpen) return null;

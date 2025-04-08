@@ -46,7 +46,7 @@ const HomePage: React.FC = () => {
       <TaskTable rows={rows} onAddRow={handleAddRow} />
 
       {/* User Table */}
-      <UserTable volunteers={volunteers} />
+      <UserTable/>
 
       {/* Add Volunteer Button */}
       <button
