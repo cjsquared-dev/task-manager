@@ -1,17 +1,8 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f9f9f9;
-  /* Light background color */
-  --foreground: #333333;
-  /* Darker text color for contrast */
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --background: transparent; /* Transparent background */
+  --foreground: #333333; /* Darker text color for contrast */
 }
 
 @media (prefers-color-scheme: dark) {
@@ -25,23 +16,14 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-}
-
-
-
-:root {
-  --light: #fff;
-  --light-accent: #f9f9fb;
-  --dark: #000;
-  --dark-accent: #222;
-
-}
-
-html,
-body {
-  padding: 0;
   margin: 0;
-  background-color: #eeeeee;
+  padding: 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 auto;
 }
 
 th,
@@ -53,46 +35,26 @@ td {
   font-size: 15px;
 }
 
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: 0 auto;
-
-}
-
 td {
   align-items: center;
   justify-content: center;
 }
 
 #table-container {
-  background-color: #ffffff;
+  background-color: transparent; /* Removed white background */
   display: grid;
   width: 100%;
   overflow-x: auto;
   padding: 20px;
   border-radius: 10px;
   margin: 50px auto;
-  padding: 50px 0;
-  -webkit-box-shadow: 10px 10px 5px 0px rgb(167, 167, 167);
-  -moz-box-shadow: 10px 10px 5px 0px rgb(167, 167, 167);
-  box-shadow: 10px 10px 5px 0px rgb(167, 167, 167);
-
 }
-
 
 #task-header {
   font-weight: bold;
   font-size: 18px;
   text-align: center;
   width: 90%;
-
-}
-
-
-#time-slots {
-  text-align: center;
-  font-size: 25px;
 }
 
 #newRowBtn {
@@ -125,15 +87,6 @@ td {
   table {
     width: 70%;
   }
-
-  th,
-  td {
-    width: 70%;
-  }
-
-  .hero-container {
-    width: 70%;
-  }
 }
 
 @media screen and (min-width: 992px) {
@@ -145,64 +98,41 @@ td {
     width: 80%;
   }
 
-  th,
-  td {
-    width: 100%;
-  }
-
   #newRowBtn {
     width: 80%;
   }
-
-
 }
 
 * {
-  transition: background-color ease-in .1s;
+  transition: background-color ease-in 0.1s;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
 }
 
 .dark {
-  background-color: var(--dark-accent);
-  color: var(--light);
+  background-color: var(--background);
+  color: var(--foreground);
   padding-bottom: 50px;
 }
 
-.dark #table-container {
-  background-color: var(--dark-accent);
-  color: var(--light);
-  box-shadow: none;
-}
-
 .light {
-  background-color: var(--light-accent);
-  color: var(--dark);
+  background-color: var(--foreground);
+  color: var(--background);
   padding-bottom: 50px;
 }
 
 .time-button:hover {
   background-color: #007BFF;
-  /* Change to your desired hover color */
   color: white;
-  /* Change text color */
   cursor: pointer;
-  /* Change cursor to pointer */
   transition: background-color 0.3s ease, color 0.3s ease;
-  /* Smooth transition */
 }
-
-/* this will have uniform styling for all elements */
-* {
-  margin: 0;
-  Padding: 0;
-  box-sizing: border-box;
-  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
-}
-
-
 
 .modal-content-hidden {
   display: flex;
-  background-color: #fefefe;
+  background-color: transparent; /* Removed white background */
   margin: auto;
   padding: 20px;
   border: 1px solid #888;
@@ -215,13 +145,9 @@ td {
 .modal-content-hidden label {
   font-size: 15px;
   display: block;
-
 }
 
-
 .modal-content-hidden p {
-  display: flex;
-  flex-direction: center;
   font-size: 1.5rem;
   color: #777;
   margin: 0.5rem 0 0.2rem;
@@ -236,7 +162,7 @@ td {
   padding: 1.3rem;
   position: absolute;
   top: 20%;
-  background-color: white;
+  background-color: transparent; /* Removed white background */
 }
 
 .input {
@@ -244,7 +170,6 @@ td {
   border: 1px solid #000000;
   border-radius: 5px;
   font-size: 0.9rem;
-
 }
 
 .button-style {
@@ -259,11 +184,10 @@ td {
 }
 
 #submit-button {
-  transform: translate(20px);
   margin-top: 10px;
   padding: 0.5rem 0.7rem;
   background: rgb(22 163 74);
-  border: 2px, solid, rgb(22 163 74);
+  border: 2px solid rgb(22 163 74);
   border-radius: 5px;
   cursor: pointer;
   font-weight: bold;
@@ -272,7 +196,6 @@ td {
 }
 
 #cancel-button {
-  transform: translate(20px);
   margin-top: 10px;
   padding: 0.5rem 0.7rem;
   background: rgb(230, 253, 238);

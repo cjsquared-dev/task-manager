@@ -3,6 +3,7 @@
 import React, { useState } from 'react';
 import TaskTable from './components/TaskTable';
 import UserModal from './components/UserModal';
+import UserTable from './components/UserTable';
 
 const HomePage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -41,20 +42,11 @@ const HomePage: React.FC = () => {
         ☀
       </button>
 
-      {/* Volunteer List */}
-      <div className="mt-8">
-        <h2 className="text-xl font-bold">Volunteers</h2>
-        <ul>
-          {volunteers.map((volunteer, index) => (
-            <li key={index} className="border-b border-gray-300 py-2">
-              {volunteer.name}
-            </li>
-          ))}
-        </ul>
-      </div>
-
       {/* Task Table */}
       <TaskTable rows={rows} onAddRow={handleAddRow} />
+
+      {/* User Table */}
+      <UserTable volunteers={volunteers} />
 
       {/* Add Volunteer Button */}
       <button
