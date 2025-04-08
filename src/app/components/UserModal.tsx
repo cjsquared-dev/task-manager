@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 interface UserModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (user: { name: string }) => void;
+  onSubmit: () => void; // Updated to trigger a refresh
 }
 
 const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit }) => {
@@ -25,7 +25,8 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit }) => {
         throw new Error('Failed to save volunteer');
       }
 
-      onSubmit({ name });
+      // Trigger the parent component's refresh logic
+      onSubmit();
       setName('');
       onClose();
     } catch (error) {
@@ -38,7 +39,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit }) => {
 
   return (
     <section id="modal" className="overlay modal fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <section className="modal-content w-4/5 bg-white p-6 rounded-md">
+      <section className="modal-content w-4/5 bg-gray-600 p-6 rounded-md">
         <section>
           <p className="pb-1 text-lg font-bold">Volunteer Info</p>
           <form className="w-96" onSubmit={handleSubmit}>

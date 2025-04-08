@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import TaskTable from './components/TaskTable';
 import UserModal from './components/UserModal';
 import UserTable from './components/UserTable';
@@ -14,14 +14,29 @@ const HomePage: React.FC = () => {
     setIsModalOpen(!isModalOpen);
   };
 
+  const fetchVolunteers = async () => {
+    try {
+      const response = await fetch('/api');
+      if (!response.ok) {
+        throw new Error('Failed to fetch volunteers');
+      }
+      const data = await response.json();
+      setVolunteers(data);
+    } catch (error) {
+      console.error('Error fetching volunteers:', error);
+    }
+  };
+
+  useEffect(() => {
+    fetchVolunteers();
+  }, []);
+
   const handleAddRow = () => {
     // Add a new empty row with 10 empty cells
     setRows([...rows, Array(10).fill('')]);
   };
 
-  const handleAddVolunteer = (volunteer: { name: string; }) => {
-    setVolunteers([...volunteers, volunteer]);
-  };
+  
 
   return (
     <div>
@@ -46,7 +61,7 @@ const HomePage: React.FC = () => {
       <TaskTable rows={rows} onAddRow={handleAddRow} />
 
       {/* User Table */}
-      <UserTable/>
+      <UserTable volunteers={volunteers} />
 
       {/* Add Volunteer Button */}
       <button
@@ -61,7 +76,7 @@ const HomePage: React.FC = () => {
       <UserModal
         isOpen={isModalOpen}
         onClose={handleToggleModal}
-        onSubmit={handleAddVolunteer}
+        onSubmit={fetchVolunteers} // Pass the refresh function
       />
     </div>
   );
