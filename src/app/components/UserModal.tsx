@@ -3,14 +3,21 @@ import React, { useState } from 'react';
 interface UserModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: () => void; // Updated to trigger a refresh
+  onSubmit: (user: { name: string; color: string }) => void; // Updated to include color
+  usedColors: string[]; // List of already used colors
 }
 
-const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit }) => {
+const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit, usedColors }) => {
   const [name, setName] = useState('');
+  const [color, setColor] = useState('#000000'); // Default color is black
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (usedColors.includes(color)) {
+      alert('This color is already in use. Please choose another color.');
+      return;
+    }
 
     try {
       const response = await fetch('/api', {
@@ -18,7 +25,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit }) => {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name }),
+        body: JSON.stringify({ name, color }),
       });
 
       if (!response.ok) {
@@ -26,8 +33,9 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit }) => {
       }
 
       // Trigger the parent component's refresh logic
-      onSubmit();
+      onSubmit({ name, color });
       setName('');
+      setColor('#000000'); // Reset color to default
       onClose();
     } catch (error) {
       console.error('Error saving volunteer:', error);
@@ -52,6 +60,17 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit }) => {
               onChange={(e) => setName(e.target.value)}
               required
             />
+
+            <label htmlFor="color" className="block font-medium">Select Color:</label>
+            <input
+              type="color"
+              className="w-full p-2 border border-gray-300 rounded mb-4"
+              id="color"
+              value={color}
+              onChange={(e) => setColor(e.target.value)}
+              required
+            />
+
             <div className="mt-4">
               <button
                 type="submit"

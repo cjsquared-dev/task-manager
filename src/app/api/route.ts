@@ -5,15 +5,16 @@ import Volunteer from '@/lib/models/Volunteer';
 // This function handles POST requests to save a new volunteer
 export async function POST(req: Request) {
   try {
-    const { name } = await req.json();
+    const { name, color } = await req.json();
 
-    if (!name) {
-      return NextResponse.json({ error: 'Name is required' }, { status: 400 });
+    if (!name || !color) {
+      return NextResponse.json({ error: 'Name and color are required' }, { status: 400 });
+
     }
 
     await dbConnect();
 
-    const newVolunteer = new Volunteer({ name });
+    const newVolunteer = new Volunteer({ name, color });
     await newVolunteer.save();
 
     return NextResponse.json({ message: 'Volunteer saved successfully' }, { status: 201 });

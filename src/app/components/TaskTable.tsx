@@ -31,7 +31,6 @@ const TaskTable: React.FC<TaskTableProps> = ({ rows, onAddRow }) => {
     const updatedTaskNames = [...taskNames];
     updatedTaskNames[index] = value;
     setTaskNames(updatedTaskNames);
-    setEditedTaskIndex(index); // Mark the row as edited
   };
 
   const handleSaveTask = async (index: number) => {
@@ -56,12 +55,33 @@ const TaskTable: React.FC<TaskTableProps> = ({ rows, onAddRow }) => {
     }
   };
 
+  const handleDeleteTask = async (index: number) => {
+    try {
+      const taskName = taskNames[index];
+      const response = await fetch(`/api/tasks/${taskName}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to delete task');
+      }
+
+      console.log('Task deleted successfully');
+      const updatedTaskNames = [...taskNames];
+      updatedTaskNames.splice(index, 1); // Remove the task from the list
+      setTaskNames(updatedTaskNames);
+    } catch (error) {
+      console.error('Error deleting task:', error);
+    }
+  };
+
   return (
     <div id="table-container" className="mt-8">
       <table id="table" className="w-full border-collapse border border-gray-300">
         <thead>
           <tr>
             <th id="task-header" className="font-bold border border-gray-300">Tasks</th>
+            <th className="border border-gray-300">Actions</th>
             {/* Generate time slots dynamically */}
             {Array.from({ length: 10 }, (_, i) => {
               const hour = 8 + i; // Start from 8 AM
@@ -81,21 +101,39 @@ const TaskTable: React.FC<TaskTableProps> = ({ rows, onAddRow }) => {
           {rows.map((row, rowIndex) => (
             <tr key={rowIndex}>
               <td className="border border-gray-300">
-                <input
-                  type="text"
-                  className="w-full p-2 border border-gray-300 rounded"
-                  value={taskNames[rowIndex] || ''}
-                  onChange={(e) => handleTaskNameChange(rowIndex, e.target.value)}
-                  placeholder={`Task ${rowIndex + 1}`}
-                />
-                {editedTaskIndex === rowIndex && (
+                {editedTaskIndex === rowIndex ? (
+                  <input
+                    type="text"
+                    className="w-full p-2 border border-gray-300 rounded"
+                    value={taskNames[rowIndex] || ''}
+                    onChange={(e) => handleTaskNameChange(rowIndex, e.target.value)}
+                  />
+                ) : (
+                  taskNames[rowIndex]
+                )}
+              </td>
+              <td className="border border-gray-300 text-center">
+                {editedTaskIndex === rowIndex ? (
                   <button
                     className="mt-2 bg-green-500 text-white px-4 py-2 rounded"
                     onClick={() => handleSaveTask(rowIndex)}
                   >
-                    Save Task
+                    Save
+                  </button>
+                ) : (
+                  <button
+                    className="mt-2 bg-blue-500 text-white px-4 py-2 rounded mr-2"
+                    onClick={() => setEditedTaskIndex(rowIndex)}
+                  >
+                    Edit
                   </button>
                 )}
+                <button
+                  className="mt-2 bg-red-500 text-white px-4 py-2 rounded"
+                  onClick={() => handleDeleteTask(rowIndex)}
+                >
+                  Delete
+                </button>
               </td>
               {row.map((cell, cellIndex) => (
                 <td key={cellIndex} className="border border-gray-300 text-center">

@@ -36,3 +36,24 @@ export async function GET() {
     return NextResponse.json({ error: 'Failed to fetch tasks' }, { status: 500 });
   }
 }
+
+// DELETE: Delete a task by name
+// This function handles DELETE requests to delete a task by its name
+export async function DELETE(req: Request, { params }: { params: { name: string } }) {
+    try {
+      await dbConnect();
+      const { name } = params;
+  
+      const result = await Task.deleteOne({ name });
+      if (result.deletedCount === 0) {
+        return NextResponse.json({ error: 'Task not found' }, { status: 404 });
+      }
+  
+      return NextResponse.json({ message: 'Task deleted successfully' }, { status: 200 });
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      return NextResponse.json({ error: 'Failed to delete task' }, { status: 500 });
+    }
+  }
+
+  //

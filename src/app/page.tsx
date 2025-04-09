@@ -8,11 +8,13 @@ import UserTable from './components/UserTable';
 const HomePage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [rows, setRows] = useState<string[][]>([]); // State to manage table rows
-  const [volunteers, setVolunteers] = useState<{ name: string }[]>([]); // State to manage volunteers
+  const [volunteers, setVolunteers] = useState<{ name: string; color: string }[]>([]); // State to manage volunteers
 
   const handleToggleModal = () => {
     setIsModalOpen(!isModalOpen);
   };
+
+
 
   const fetchVolunteers = async () => {
     try {
@@ -30,6 +32,8 @@ const HomePage: React.FC = () => {
   useEffect(() => {
     fetchVolunteers();
   }, []);
+
+  const usedColors = volunteers.map((volunteer) => volunteer.color);
 
   const handleAddRow = () => {
     // Add a new empty row with 10 empty cells
@@ -77,6 +81,7 @@ const HomePage: React.FC = () => {
         isOpen={isModalOpen}
         onClose={handleToggleModal}
         onSubmit={fetchVolunteers} // Pass the refresh function
+        usedColors={usedColors} // Pass the list of used colors
       />
     </div>
   );
