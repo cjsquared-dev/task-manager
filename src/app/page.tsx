@@ -65,17 +65,17 @@ const HomePage: React.FC = () => {
       {/* Task Table */}
       <TaskTable rows={rows} onAddRow={handleAddRow} />
 
-      {/* User Table */}
-      <UserTable volunteers={volunteers} />
-
-      {/* Add Volunteer Button */}
-      <button
+            {/* Add Volunteer Button */}
+            <button
         id="addVolunteerButton"
         className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
         onClick={handleToggleModal}
       >
         Add Volunteer
       </button>
+
+      {/* User Table */}
+      <UserTable volunteers={volunteers} />
 
       {/* User Modal */}
       <UserModal
