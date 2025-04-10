@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { dbConnect } from '@/lib/db';
-import Volunteer from '@/lib/models/Volunteer';
+import { dbConnect } from '../../../lib/db';
+import Volunteer from '../../../lib/models/Volunteer';
 
 // This function handles POST requests to save a new volunteer
 export async function POST(req: Request) {

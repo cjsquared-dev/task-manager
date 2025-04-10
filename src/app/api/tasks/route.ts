@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
-import { dbConnect } from '@/lib/db';
-import Task from '@/lib/models/Task';
+import { dbConnect } from '../../../lib/db';
+import Task from '../../../lib/models/Task';
 
 // POST: Save a new task
 export async function POST(req: Request) {
