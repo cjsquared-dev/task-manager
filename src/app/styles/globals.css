@@ -1,0 +1,230 @@
+
+
+@import url("https://fonts.googleapis.com/css2?family=Red+Hat+Display:ital,wght@0,300..900;1,300..900&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: transparent; /* Transparent background */
+  --foreground: #333333; /* Darker text color for contrast */
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: Arial, Helvetica, sans-serif;
+  margin: 0;
+  padding: 0;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0 auto;
+}
+
+th,
+td {
+  border: 1px solid rgb(132, 132, 132);
+  empty-cells: show;
+  padding: 12px;
+  text-align: left;
+  font-size: 15px;
+}
+
+td {
+  align-items: center;
+  justify-content: center;
+}
+
+#table-container {
+  background-color: transparent; /* Removed white background */
+  display: grid;
+  width: 100%;
+  overflow-x: auto;
+  padding: 20px;
+  border-radius: 10px;
+  margin: 50px auto;
+}
+
+#task-header {
+  font-weight: bold;
+  font-size: 18px;
+  text-align: center;
+  width: 90%;
+}
+
+#newRowBtn {
+  margin: auto;
+  margin-top: 20px;
+  width: 80%;
+  display: block;
+  padding: 0.5rem 0.7rem;
+  background-color: rgb(103 232 249);
+  border: 2px solid rgb(22 163 74);
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 18px;
+  color: rgb(21 94 117);
+}
+
+.button-cell {
+  cursor: pointer;
+}
+
+.toggleButton {
+  text-align: right;
+}
+
+@media screen and (min-width: 768px) {
+  #table-container {
+    width: 70%;
+  }
+
+  table {
+    width: 70%;
+  }
+}
+
+@media screen and (min-width: 992px) {
+  #table-container {
+    width: 70%;
+  }
+
+  table {
+    width: 80%;
+  }
+
+  #newRowBtn {
+    width: 80%;
+  }
+}
+
+* {
+  transition: background-color ease-in 0.1s;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+}
+
+.dark {
+  background-color: var(--background);
+  color: var(--foreground);
+  padding-bottom: 50px;
+}
+
+.light {
+  background-color: var(--foreground);
+  color: var(--background);
+  padding-bottom: 50px;
+}
+
+.time-button:hover {
+  background-color: #007BFF;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.modal-content-hidden {
+  display: flex;
+  background-color: transparent; /* Removed white background */
+  margin: auto;
+  padding: 20px;
+  border: 1px solid #888;
+  border-radius: 15px;
+  width: 80%;
+  justify-content: space-between;
+  z-index: 2;
+}
+
+.modal-content-hidden label {
+  font-size: 15px;
+  display: block;
+}
+
+.modal-content-hidden p {
+  font-size: 1.5rem;
+  color: #777;
+  margin: 0.5rem 0 0.2rem;
+}
+
+.modal-hidden {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.4rem;
+  width: 450px;
+  padding: 1.3rem;
+  position: absolute;
+  top: 20%;
+  background-color: transparent; /* Removed white background */
+}
+
+.input {
+  padding: 5px;
+  border: 1px solid #000000;
+  border-radius: 5px;
+  font-size: 0.9rem;
+}
+
+.button-style {
+  padding: 10px;
+  margin: 4px;
+  border-radius: 5px;
+}
+
+.material-symbols-outlined {
+  color: red;
+  cursor: pointer;
+}
+
+#submit-button {
+  margin-top: 10px;
+  padding: 0.5rem 0.7rem;
+  background: rgb(22 163 74);
+  border: 2px solid rgb(22 163 74);
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 18px;
+  color: rgb(230, 253, 238);
+}
+
+#cancel-button {
+  margin-top: 10px;
+  padding: 0.5rem 0.7rem;
+  background: rgb(230, 253, 238);
+  border: 2px solid rgb(22 163 74);
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 18px;
+  color: rgb(22 163 74);
+}
+
+.overlay {
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(3px);
+  z-index: 1;
+}
+
+.hidden {
+  display: none;
+}
