@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import VolunteerModal from './VolunteerModal';
 
 interface TaskTableProps {
+  rows: string[][];
   onAddRow: () => void;
 }
 

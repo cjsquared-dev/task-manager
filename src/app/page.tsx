@@ -14,8 +14,23 @@ const HomePage: React.FC = () => {
     setIsModalOpen(!isModalOpen);
   };
 
+  // Fetch rows (tasks) from the database
+  const fetchRows = async () => {
+    try {
+      const response = await fetch('/api/tasks'); // Replace with your API endpoint
+      if (!response.ok) {
+        throw new Error('Failed to fetch tasks');
+      }
+      const data = await response.json();
+      if (data.length > 0) {
+        setRows(data.map(() => Array(10).fill(''))); // Initialize rows with empty cells
+      }
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    }
+  };
 
-
+  // Fetch volunteers from the database
   const fetchVolunteers = async () => {
     try {
       const response = await fetch('/api/volunteers');
@@ -30,6 +45,7 @@ const HomePage: React.FC = () => {
   };
 
   useEffect(() => {
+    fetchRows();
     fetchVolunteers();
   }, []);
 
@@ -39,9 +55,6 @@ const HomePage: React.FC = () => {
     // Add a new empty row with 10 empty cells
     setRows([...rows, Array(10).fill('')]);
   };
-
-  
-  
 
   return (
     <div>
@@ -65,8 +78,8 @@ const HomePage: React.FC = () => {
       {/* Task Table */}
       <TaskTable rows={rows} onAddRow={handleAddRow} />
 
-            {/* Add Volunteer Button */}
-            <button
+      {/* Add Volunteer Button */}
+      <button
         id="addVolunteerButton"
         className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
         onClick={handleToggleModal}
