@@ -8,7 +8,7 @@ interface Volunteer {
 
 interface VolunteerModalProps {
   onClose: () => void;
-  onSelect: (volunteer: Volunteer) => void;
+  onSelect: (volunteer: Volunteer | null) => void; // Allow null to indicate removal
 }
 
 const VolunteerModal: React.FC<VolunteerModalProps> = ({ onClose, onSelect }) => {
@@ -39,7 +39,7 @@ const VolunteerModal: React.FC<VolunteerModalProps> = ({ onClose, onSelect }) =>
 
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+      <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center">
         <div className="bg-white p-6 rounded-md w-96">
           <h2 className="text-lg font-bold mb-4">Loading Volunteers...</h2>
         </div>
@@ -49,7 +49,7 @@ const VolunteerModal: React.FC<VolunteerModalProps> = ({ onClose, onSelect }) =>
 
   if (error) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+      <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center">
         <div className="bg-white p-6 rounded-md w-96">
           <h2 className="text-lg font-bold mb-4 text-red-500">{error}</h2>
           <button
@@ -64,8 +64,8 @@ const VolunteerModal: React.FC<VolunteerModalProps> = ({ onClose, onSelect }) =>
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div className="bg-white p-6 rounded-md w-96">
+    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center">
+      <div className="bg-black p-6 rounded-md w-96 border border-gray-300">
         <h2 className="text-lg font-bold mb-4">Select a Volunteer</h2>
         <ul>
           {volunteers.map((volunteer, index) => (
@@ -83,7 +83,13 @@ const VolunteerModal: React.FC<VolunteerModalProps> = ({ onClose, onSelect }) =>
           ))}
         </ul>
         <button
-          className="mt-4 bg-red-500 text-white px-4 py-2 rounded"
+          className="mt-4 bg-yellow-500 text-white px-4 py-2 rounded w-full"
+          onClick={() => onSelect(null)} // Pass null to indicate removal
+        >
+          Remove Volunteer
+        </button>
+        <button
+          className="mt-4 bg-red-500 text-white px-4 py-2 rounded w-full"
           onClick={onClose}
         >
           Close

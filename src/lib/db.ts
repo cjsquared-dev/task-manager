@@ -30,11 +30,11 @@ export async function dbConnect() {
       } as mongoose.ConnectOptions)
       .then(async () => {
         // Drop the database only in development mode
-        if (process.env.NODE_ENV === "development") {
-          console.log("Dropping database...");
-          await mongoose.connection.dropDatabase(); // Use mongoose.connection here
-          console.log("Database dropped successfully.");
-        }
+        // if (process.env.NODE_ENV === "development") {
+        //   console.log("Dropping database...");
+        //   await mongoose.connection.dropDatabase(); // Use mongoose.connection here
+        //   console.log("Database dropped successfully.");
+        // }
 
         return mongoose.connection; // Return the connection instance
       });

@@ -9,15 +9,24 @@ interface UserModalProps {
 
 const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit, usedColors }) => {
   const [name, setName] = useState('');
-  const [color, setColor] = useState('#000000'); // Default color is black
+
+  // Predefined list of 20 colors
+  const predefinedColors = [
+    '#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#A133FF', '#33FFF5', '#F5FF33',
+    '#FF8C33', '#33FF8C', '#8C33FF', '#FF3333', '#33FF33', '#3333FF', '#FFAA33',
+    '#33FFAA', '#AA33FF', '#FF77AA', '#77FFAA', '#AAFF77', '#FFAA77',
+  ];
+
+  // Function to get a random unused color
+  const getRandomColor = (): string => {
+    const unusedColors = predefinedColors.filter(color => !usedColors.includes(color));
+    return unusedColors[Math.floor(Math.random() * unusedColors.length)] || '#000000'; // Default to black if no colors are left
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (usedColors.includes(color)) {
-      alert('This color is already in use. Please choose another color.');
-      return;
-    }
+    const randomColor = getRandomColor();
 
     try {
       const response = await fetch('/api/volunteers', {
@@ -25,7 +34,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit, usedCo
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({ name, color }),
+        body: JSON.stringify({ name, color: randomColor }),
       });
 
       if (!response.ok) {
@@ -33,9 +42,8 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit, usedCo
       }
 
       // Trigger the parent component's refresh logic
-      onSubmit({ name, color });
+      onSubmit({ name, color: randomColor });
       setName('');
-      setColor('#000000'); // Reset color to default
       onClose();
     } catch (error) {
       console.error('Error saving volunteer:', error);
@@ -58,16 +66,6 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit, usedCo
               id="name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              required
-            />
-
-            <label htmlFor="color" className="block font-medium">Select Color:</label>
-            <input
-              type="color"
-              className="w-full p-2 border border-gray-300 rounded mb-4"
-              id="color"
-              value={color}
-              onChange={(e) => setColor(e.target.value)}
               required
             />
 
