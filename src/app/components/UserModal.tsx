@@ -20,7 +20,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit, usedCo
     }
 
     try {
-      const response = await fetch('/api', {
+      const response = await fetch('/api/volunteers', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

@@ -18,7 +18,7 @@ const HomePage: React.FC = () => {
 
   const fetchVolunteers = async () => {
     try {
-      const response = await fetch('/api');
+      const response = await fetch('/api/volunteers');
       if (!response.ok) {
         throw new Error('Failed to fetch volunteers');
       }
@@ -40,6 +40,7 @@ const HomePage: React.FC = () => {
     setRows([...rows, Array(10).fill('')]);
   };
 
+  
   
 
   return (

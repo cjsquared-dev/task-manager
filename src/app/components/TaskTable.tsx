@@ -1,14 +1,22 @@
 import React, { useState, useEffect } from 'react';
+import VolunteerModal from './VolunteerModal';
 
 interface TaskTableProps {
   rows: string[][];
   onAddRow: () => void;
 }
 
+interface Volunteer {
+  name: string;
+  color: string;
+}
+
 const TaskTable: React.FC<TaskTableProps> = ({ rows, onAddRow }) => {
   const [taskNames, setTaskNames] = useState<string[]>([]);
   const [editedTaskIndex, setEditedTaskIndex] = useState<number | null>(null);
-
+  const [selectedCell, setSelectedCell] = useState<{ rowIndex: number; cellIndex: number } | null>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [volunteerAssignments, setVolunteerAssignments] = useState<{ [key: string]: Volunteer }>({});
   // Fetch tasks from the database on component mount
   useEffect(() => {
     const fetchTasks = async () => {
@@ -75,6 +83,30 @@ const TaskTable: React.FC<TaskTableProps> = ({ rows, onAddRow }) => {
     }
   };
 
+  const handleOpenModal = (rowIndex: number, cellIndex: number) => {
+    setSelectedCell({ rowIndex, cellIndex });
+    setIsModalOpen(true);
+  };
+
+  const handleSelectVolunteer = (volunteer: Volunteer | null) => {
+  if (selectedCell) {
+    const cellKey = `${selectedCell.rowIndex}-${selectedCell.cellIndex}`;
+    if (volunteer) {
+      // Assign the selected volunteer
+      setVolunteerAssignments({
+        ...volunteerAssignments,
+        [cellKey]: volunteer,
+      });
+    } else {
+      // Remove the volunteer assignment
+      const updatedAssignments = { ...volunteerAssignments };
+      delete updatedAssignments[cellKey];
+      setVolunteerAssignments(updatedAssignments);
+    }
+    setIsModalOpen(false);
+  }
+};
+
   return (
     <div id="table-container" className="mt-8">
       <table id="table" className="w-full border-collapse border border-gray-300">
@@ -135,11 +167,39 @@ const TaskTable: React.FC<TaskTableProps> = ({ rows, onAddRow }) => {
                   Delete
                 </button>
               </td>
-              {row.map((cell, cellIndex) => (
-                <td key={cellIndex} className="border border-gray-300 text-center">
-                  {cell}
-                </td>
-              ))}
+              {row.map((cell, cellIndex) => {
+                const cellKey = `${rowIndex}-${cellIndex}`;
+                const assignedVolunteer = volunteerAssignments[cellKey];
+
+                return (
+                  <td
+                    key={cellIndex}
+                    className="border border-gray-300 text-center"
+                    style={{
+                      backgroundColor: assignedVolunteer?.color || 'transparent',
+                    }}
+                  >
+                    {assignedVolunteer ? (
+                      <div>
+                        <span>{assignedVolunteer.name}</span>
+                        <button
+                          className="ml-2 bg-blue-500 text-white px-2 py-1 rounded"
+                          onClick={() => handleOpenModal(rowIndex, cellIndex)}
+                        >
+                          Change
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        className="bg-gray-300 text-black px-2 py-1 rounded"
+                        onClick={() => handleOpenModal(rowIndex, cellIndex)}
+                      >
+                        Add Volunteer
+                      </button>
+                    )}
+                  </td>
+                );
+              })}
             </tr>
           ))}
         </tbody>
@@ -156,6 +216,13 @@ const TaskTable: React.FC<TaskTableProps> = ({ rows, onAddRow }) => {
       >
         Add New Task
       </button>
+       {/* Volunteer Modal */}
+       {isModalOpen && (
+        <VolunteerModal
+          onClose={() => setIsModalOpen(false)}
+          onSelect={handleSelectVolunteer}
+        />
+      )}
     </div>
   );
 };
