@@ -71,24 +71,33 @@ const TaskTable: React.FC<TaskTableProps> = ({ onAddRow }) => {
   const handleDeleteTask = async (index: number) => {
     try {
       const taskName = taskNames[index];
-      const response = await fetch(`/api/tasks/${taskName}`, {
+      console.log('Deleting task:', taskName);
+  
+      // Send the task name as a query parameter
+      const response = await fetch(`/api/tasks?name=${encodeURIComponent(taskName)}`, {
         method: 'DELETE',
       });
-
+  
       if (!response.ok) {
-        throw new Error('Failed to delete task');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete task');
       }
-
+  
       console.log('Task deleted successfully');
       const updatedTaskNames = [...taskNames];
       updatedTaskNames.splice(index, 1); // Remove the task from the list
       setTaskNames(updatedTaskNames);
-
+  
       const updatedRows = [...rows];
       updatedRows.splice(index, 1); // Remove the corresponding row
       setRows(updatedRows);
     } catch (error) {
       console.error('Error deleting task:', error);
+      if (error instanceof Error) {
+        alert(error.message); // Show an alert with the error message
+      } else {
+        alert('An unknown error occurred'); // Fallback for non-Error types
+      }
     }
   };
 
