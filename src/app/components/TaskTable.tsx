@@ -11,15 +11,16 @@ interface Volunteer {
   color: string;
 }
 
+
+
 const TaskTable: React.FC<TaskTableProps> = ({ onAddRow }) => {
   const [taskNames, setTaskNames] = useState<string[]>([]);
   const [rows, setRows] = useState<string[][]>([]); // Dynamically manage rows
   const [editedTaskIndex, setEditedTaskIndex] = useState<number | null>(null);
   const [selectedCell, setSelectedCell] = useState<{ rowIndex: number; cellIndex: number } | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [volunteerAssignments, setVolunteerAssignments] = useState<{ [key: string]: Volunteer }>({});
+  const [volunteerAssignments, setVolunteerAssignments] = useState<{ [key: string]: Volunteer[] }>({}); // Store arrays of volunteers
 
-  // Fetch tasks from the database on component mount
   useEffect(() => {
     const fetchTasks = async () => {
       try {
@@ -46,59 +47,23 @@ const TaskTable: React.FC<TaskTableProps> = ({ onAddRow }) => {
     setTaskNames(updatedTaskNames);
   };
 
-  const handleSaveTask = async (index: number) => {
-    try {
-      const taskName = taskNames[index];
-      const response = await fetch('/api/tasks', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name: taskName }),
-      });
+  const handleDeleteTask = (index: number) => {
+    const updatedTaskNames = [...taskNames];
+    updatedTaskNames.splice(index, 1); // Remove the task name
+    setTaskNames(updatedTaskNames);
 
-      if (!response.ok) {
-        throw new Error('Failed to save task');
-      }
+    const updatedRows = [...rows];
+    updatedRows.splice(index, 1); // Remove the corresponding row
+    setRows(updatedRows);
 
-      console.log('Task saved successfully');
-      setEditedTaskIndex(null); // Clear the edited state after saving
-    } catch (error) {
-      console.error('Error saving task:', error);
-    }
-  };
-
-  const handleDeleteTask = async (index: number) => {
-    try {
-      const taskName = taskNames[index];
-      console.log('Deleting task:', taskName);
-  
-      // Send the task name as a query parameter
-      const response = await fetch(`/api/tasks?name=${encodeURIComponent(taskName)}`, {
-        method: 'DELETE',
-      });
-  
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to delete task');
+    // Remove all volunteer assignments for the deleted row
+    const updatedVolunteerAssignments = { ...volunteerAssignments };
+    Object.keys(updatedVolunteerAssignments).forEach((key) => {
+      if (key.startsWith(`${index}-`)) {
+        delete updatedVolunteerAssignments[key];
       }
-  
-      console.log('Task deleted successfully');
-      const updatedTaskNames = [...taskNames];
-      updatedTaskNames.splice(index, 1); // Remove the task from the list
-      setTaskNames(updatedTaskNames);
-  
-      const updatedRows = [...rows];
-      updatedRows.splice(index, 1); // Remove the corresponding row
-      setRows(updatedRows);
-    } catch (error) {
-      console.error('Error deleting task:', error);
-      if (error instanceof Error) {
-        alert(error.message); // Show an alert with the error message
-      } else {
-        alert('An unknown error occurred'); // Fallback for non-Error types
-      }
-    }
+    });
+    setVolunteerAssignments(updatedVolunteerAssignments);
   };
 
   const handleOpenModal = (rowIndex: number, cellIndex: number) => {
@@ -109,20 +74,39 @@ const TaskTable: React.FC<TaskTableProps> = ({ onAddRow }) => {
   const handleSelectVolunteer = (volunteer: Volunteer | null) => {
     if (selectedCell) {
       const cellKey = `${selectedCell.rowIndex}-${selectedCell.cellIndex}`;
+      const currentVolunteers = volunteerAssignments[cellKey] || [];
+
       if (volunteer) {
-        // Assign the selected volunteer
+        // Add the new volunteer to the array
         setVolunteerAssignments({
           ...volunteerAssignments,
-          [cellKey]: volunteer,
+          [cellKey]: [...currentVolunteers, volunteer],
         });
-      } else {
-        // Remove the volunteer assignment
-        const updatedAssignments = { ...volunteerAssignments };
-        delete updatedAssignments[cellKey];
-        setVolunteerAssignments(updatedAssignments);
       }
+
       setIsModalOpen(false);
     }
+  };
+
+  const handleRemoveVolunteer = (rowIndex: number, cellIndex: number, volunteerName: string) => {
+    const cellKey = `${rowIndex}-${cellIndex}`;
+    const currentVolunteers = volunteerAssignments[cellKey] || [];
+
+    // Remove the volunteer by name
+    const updatedVolunteers = currentVolunteers.filter((v) => v.name !== volunteerName);
+
+    setVolunteerAssignments({
+      ...volunteerAssignments,
+      [cellKey]: updatedVolunteers,
+    });
+  };
+
+
+  // Get a list of all volunteers assigned to the selected hour
+  const getAssignedVolunteersForHour = (hourIndex: number): string[] => {
+    return Object.entries(volunteerAssignments)
+      .filter(([key]) => key.endsWith(`-${hourIndex}`)) // Match cells in the same hour
+      .flatMap(([, volunteers]) => volunteers.map((v) => v.name)); // Extract volunteer names
   };
 
   return (
@@ -132,7 +116,6 @@ const TaskTable: React.FC<TaskTableProps> = ({ onAddRow }) => {
           <tr>
             <th id="task-header" className="font-bold border border-gray-300">Tasks</th>
             <th className="border border-gray-300">Actions</th>
-            {/* Generate time slots dynamically */}
             {Array.from({ length: 10 }, (_, i) => {
               const hour = 8 + i; // Start from 8 AM
               const formattedHour = hour > 12 ? hour - 12 : hour; // Convert to 12-hour format
@@ -147,91 +130,86 @@ const TaskTable: React.FC<TaskTableProps> = ({ onAddRow }) => {
           </tr>
         </thead>
         <tbody>
-          {/* Render rows dynamically if tasks exist */}
-          {rows.length > 0 ? (
-            rows.map((row, rowIndex) => (
-              <tr key={rowIndex}>
-                <td className="border border-gray-300">
-                  {editedTaskIndex === rowIndex ? (
-                    <input
-                      type="text"
-                      className="w-full p-2 border border-gray-300 rounded"
-                      value={taskNames[rowIndex] || ''}
-                      onChange={(e) => handleTaskNameChange(rowIndex, e.target.value)}
-                    />
-                  ) : (
-                    taskNames[rowIndex]
-                  )}
-                </td>
-                <td className="border border-gray-300 text-center">
-                  {editedTaskIndex === rowIndex ? (
-                    <button
-                      className="mt-2 bg-green-500 text-white px-4 py-2 rounded"
-                      onClick={() => handleSaveTask(rowIndex)}
-                    >
-                      Save
-                    </button>
-                  ) : (
+          {rows.map((row, rowIndex) => (
+            <tr key={rowIndex}>
+              <td className="border border-gray-300">
+                {editedTaskIndex === rowIndex ? (
+                  <input
+                    type="text"
+                    className="w-full p-2 border border-gray-300 rounded"
+                    value={taskNames[rowIndex] || ''}
+                    onChange={(e) => handleTaskNameChange(rowIndex, e.target.value)}
+                  />
+                ) : (
+                  taskNames[rowIndex]
+                )}
+              </td>
+              <td className="border border-gray-300 text-center">
+                {editedTaskIndex === rowIndex ? (
+                  <button
+                    className="mt-2 bg-green-500 text-white px-4 py-2 rounded"
+                    onClick={() => setEditedTaskIndex(null)}
+                  >
+                    Save
+                  </button>
+                ) : (
+                  <>
                     <button
                       className="mt-2 bg-blue-500 text-white px-4 py-2 rounded mr-2"
                       onClick={() => setEditedTaskIndex(rowIndex)}
                     >
                       Edit
                     </button>
-                  )}
-                  <button
-                    className="mt-2 bg-red-500 text-white px-4 py-2 rounded"
-                    onClick={() => handleDeleteTask(rowIndex)}
-                  >
-                    Delete
-                  </button>
-                </td>
-                {row.map((cell, cellIndex) => {
-                  const cellKey = `${rowIndex}-${cellIndex}`;
-                  const assignedVolunteer = volunteerAssignments[cellKey];
-
-                  return (
-                    <td
-                      key={cellIndex}
-                      className="border border-gray-300 text-center"
-                      style={{
-                        backgroundColor: assignedVolunteer?.color || 'transparent',
-                      }}
+                    <button
+                      className="mt-2 bg-red-500 text-white px-4 py-2 rounded"
+                      onClick={() => handleDeleteTask(rowIndex)}
                     >
-                      {assignedVolunteer ? (
-                        <div>
-                          <span>{assignedVolunteer.name}</span>
-                          <button
-                            className="ml-2 bg-blue-500 text-white px-2 py-1 rounded"
-                            onClick={() => handleOpenModal(rowIndex, cellIndex)}
+                      Delete
+                    </button>
+                  </>
+                )}
+              </td>
+              {row.map((_, cellIndex) => {
+                const cellKey = `${rowIndex}-${cellIndex}`;
+                const assignedVolunteers = volunteerAssignments[cellKey] || [];
+
+                return (
+                  <td key={cellIndex} className="border border-gray-300 text-center">
+                    <div>
+                      {assignedVolunteers.map((volunteer) => (
+                        <div
+                          key={volunteer.name}
+                          className="flex items-center justify-between mb-1"
+                        >
+                          <span
+                            style={{ color: volunteer.color }} // Highlight name with assigned color
+                            className="font-semibold"
                           >
-                            Change
+                            {volunteer.name}
+                          </span>
+                          <button
+                            className="text-red-500 hover:text-red-700 ml-2"
+                            onClick={() => handleRemoveVolunteer(rowIndex, cellIndex, volunteer.name)}
+                          >
+                            ✖
                           </button>
                         </div>
-                      ) : (
-                        <button
-                          className="bg-gray-300 text-black px-2 py-1 rounded"
-                          onClick={() => handleOpenModal(rowIndex, cellIndex)}
-                        >
-                          Add Volunteer
-                        </button>
-                      )}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))
-          ) : (
-            <tr>
-              <td colSpan={12} className="text-center p-4">
-                No tasks available.
-              </td>
+                      ))}
+                      <button
+                        className="mt-2 bg-gray-300 text-black px-2 py-1 rounded"
+                        onClick={() => handleOpenModal(rowIndex, cellIndex)}
+                      >
+                        Add Volunteer
+                      </button>
+                    </div>
+                  </td>
+                );
+              })}
             </tr>
-          )}
+          ))}
         </tbody>
       </table>
 
-      {/* Add New Task Button */}
       <button
         id="newRowBtn"
         className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
@@ -244,11 +222,12 @@ const TaskTable: React.FC<TaskTableProps> = ({ onAddRow }) => {
         Add New Task
       </button>
 
-      {/* Volunteer Modal */}
-      {isModalOpen && (
+      {isModalOpen &&  selectedCell &&(
         <VolunteerModal
           onClose={() => setIsModalOpen(false)}
           onSelect={handleSelectVolunteer}
+          excludedVolunteers={getAssignedVolunteersForHour(selectedCell.cellIndex)} // Pass excluded volunteers
+         
         />
       )}
     </div>

@@ -38,3 +38,26 @@ export async function GET() {
   }
 }
 
+// DELETE: Remove a volunteer by name
+export async function DELETE(req: Request) {
+  try {
+    const url = new URL(req.url);
+    const name = url.searchParams.get('name'); // Extract 'name' from query parameters
+
+    if (!name) {
+      return NextResponse.json({ error: 'Volunteer name is required' }, { status: 400 });
+    }
+
+    await dbConnect();
+
+    const result = await Volunteer.deleteOne({ name });
+    if (result.deletedCount === 0) {
+      return NextResponse.json({ error: 'Volunteer not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ message: 'Volunteer deleted successfully' }, { status: 200 });
+  } catch (error) {
+    console.error('Error deleting volunteer:', error);
+    return NextResponse.json({ error: 'Failed to delete volunteer' }, { status: 500 });
+  }
+}

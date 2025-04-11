@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 
-// Define the Volunteer type
 interface Volunteer {
   name: string;
   color: string;
@@ -8,19 +7,19 @@ interface Volunteer {
 
 interface VolunteerModalProps {
   onClose: () => void;
-  onSelect: (volunteer: Volunteer | null) => void; // Allow null to indicate removal
+  onSelect: (volunteer: Volunteer | null) => void;
+  excludedVolunteers: string[]; // List of volunteers to exclude
 }
 
-const VolunteerModal: React.FC<VolunteerModalProps> = ({ onClose, onSelect }) => {
+const VolunteerModal: React.FC<VolunteerModalProps> = ({ onClose, onSelect, excludedVolunteers }) => {
   const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch volunteers from the backend
   useEffect(() => {
     const fetchVolunteers = async () => {
       try {
-        const response = await fetch('/api/volunteers'); // Ensure this API route fetches volunteers
+        const response = await fetch('/api/volunteers');
         if (!response.ok) {
           throw new Error('Failed to fetch volunteers');
         }
@@ -39,9 +38,9 @@ const VolunteerModal: React.FC<VolunteerModalProps> = ({ onClose, onSelect }) =>
 
   if (loading) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center">
-        <div className="bg-white p-6 rounded-md w-96">
-          <h2 className="text-lg font-bold mb-4">Loading Volunteers...</h2>
+      <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+        <div className="bg-white p-6 rounded-md w-96 shadow-lg">
+          <h2 className="text-lg font-bold mb-4 text-center">Loading Volunteers...</h2>
         </div>
       </div>
     );
@@ -49,11 +48,11 @@ const VolunteerModal: React.FC<VolunteerModalProps> = ({ onClose, onSelect }) =>
 
   if (error) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center">
-        <div className="bg-white p-6 rounded-md w-96">
-          <h2 className="text-lg font-bold mb-4 text-red-500">{error}</h2>
+      <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+        <div className="bg-white p-6 rounded-md w-96 shadow-lg">
+          <h2 className="text-lg font-bold mb-4 text-red-500 text-center">{error}</h2>
           <button
-            className="mt-4 bg-red-500 text-white px-4 py-2 rounded"
+            className="mt-4 bg-red-500 text-white px-4 py-2 rounded w-full hover:bg-red-600"
             onClick={onClose}
           >
             Close
@@ -63,33 +62,42 @@ const VolunteerModal: React.FC<VolunteerModalProps> = ({ onClose, onSelect }) =>
     );
   }
 
+  // Filter out excluded volunteers
+  const availableVolunteers = volunteers.filter(
+    (volunteer) => !excludedVolunteers.includes(volunteer.name)
+  );
+
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center">
-      <div className="bg-black p-6 rounded-md w-96 border border-gray-300">
-        <h2 className="text-lg font-bold mb-4">Select a Volunteer</h2>
-        <ul>
-          {volunteers.map((volunteer, index) => (
+    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+      <div className="bg-gradient-to-br from-purple-500 to-indigo-600 p-6 rounded-lg w-96 shadow-xl text-white animate-fade-in">
+        <h2 className="text-2xl font-bold mb-4 text-center">Select a Volunteer</h2>
+        <ul className="space-y-3">
+          {availableVolunteers.map((volunteer) => (
             <li
-              key={index}
-              className="flex items-center justify-between mb-2 cursor-pointer"
+              key={volunteer.name}
+              className="flex items-center justify-between bg-white text-black p-3 rounded-md shadow-md cursor-pointer hover:bg-gray-100"
               onClick={() => onSelect(volunteer)}
+              style={{ listStyle: 'none' }} // Remove default bullet points
             >
-              <span>{volunteer.name}</span>
-              <div
-                className="w-6 h-6 rounded-full"
-                style={{ backgroundColor: volunteer.color }}
-              ></div>
+              {/* Custom bullet point with volunteer color */}
+              <span
+                className="font-medium"
+                style={{
+                  display: 'inline-block',
+                  marginRight: '10px',
+                  width: '10px',
+                  height: '10px',
+                  backgroundColor: volunteer.color,
+                  borderRadius: '50%',
+                }}
+              ></span>
+              {/* Volunteer name with hover effect */}
+              <span className="hover:text-purple-500 transition duration-200">{volunteer.name}</span>
             </li>
           ))}
         </ul>
         <button
-          className="mt-4 bg-yellow-500 text-white px-4 py-2 rounded w-full"
-          onClick={() => onSelect(null)} // Pass null to indicate removal
-        >
-          Remove Volunteer
-        </button>
-        <button
-          className="mt-4 bg-red-500 text-white px-4 py-2 rounded w-full"
+          className="mt-6 bg-red-500 text-white px-4 py-2 rounded w-full hover:bg-red-600 transition duration-200"
           onClick={onClose}
         >
           Close

@@ -10,11 +10,12 @@ interface UserModalProps {
 const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit, usedColors }) => {
   const [name, setName] = useState('');
 
-  // Predefined list of 20 colors
+  // Predefined list of 25 distinct colors
   const predefinedColors = [
     '#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#A133FF', '#33FFF5', '#F5FF33',
     '#FF8C33', '#33FF8C', '#8C33FF', '#FF3333', '#33FF33', '#3333FF', '#FFAA33',
-    '#33FFAA', '#AA33FF', '#FF77AA', '#77FFAA', '#AAFF77', '#FFAA77',
+    '#33FFAA', '#AA33FF', '#FF77AA', '#77FFAA', '#AAFF77', '#FFAA77', '#FF6633',
+    '#33FF66', '#6633FF', '#FF3366', '#66FF33',
   ];
 
   // Function to get a random unused color
@@ -55,7 +56,7 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit, usedCo
 
   return (
     <section id="modal" className="overlay modal fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <section className="modal-content w-4/5 bg-gray-600 p-6 rounded-md">
+      <section className="modal-content w-4/5 bg-gray-600 p-6 rounded-md text-white">
         <section>
           <p className="pb-1 text-lg font-bold">Volunteer Info</p>
           <form className="w-96" onSubmit={handleSubmit}>

@@ -49,6 +49,32 @@ const HomePage: React.FC = () => {
     fetchVolunteers();
   }, []);
 
+  // Handle deleting a volunteer
+  const handleDeleteVolunteer = async (name: string) => {
+    try {
+      const response = await fetch(`/api/volunteers?name=${encodeURIComponent(name)}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete volunteer');
+      }
+
+      console.log('Volunteer deleted successfully');
+      setVolunteers((prevVolunteers) =>
+        prevVolunteers.filter((volunteer) => volunteer.name !== name)
+      );
+    } catch (error) {
+      console.error('Error deleting volunteer:', error);
+      if (error instanceof Error) {
+        alert(error.message); // Show an alert with the error message
+      } else {
+        alert('An unknown error occurred'); // Fallback for non-Error types
+      }
+    }
+  };
+
   const usedColors = volunteers.map((volunteer) => volunteer.color);
 
   const handleAddRow = () => {
@@ -88,7 +114,7 @@ const HomePage: React.FC = () => {
       </button>
 
       {/* User Table */}
-      <UserTable volunteers={volunteers} />
+      <UserTable volunteers={volunteers} onDelete={handleDeleteVolunteer} />
 
       {/* User Modal */}
       <UserModal
