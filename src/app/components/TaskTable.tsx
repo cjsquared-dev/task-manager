@@ -11,15 +11,13 @@ interface Volunteer {
   color: string;
 }
 
-
-
 const TaskTable: React.FC<TaskTableProps> = ({ onAddRow }) => {
   const [taskNames, setTaskNames] = useState<string[]>([]);
-  const [rows, setRows] = useState<string[][]>([]); // Dynamically manage rows
+  const [rows, setRows] = useState<string[][]>([]);
   const [editedTaskIndex, setEditedTaskIndex] = useState<number | null>(null);
   const [selectedCell, setSelectedCell] = useState<{ rowIndex: number; cellIndex: number } | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [volunteerAssignments, setVolunteerAssignments] = useState<{ [key: string]: Volunteer[] }>({}); // Store arrays of volunteers
+  const [volunteerAssignments, setVolunteerAssignments] = useState<{ [key: string]: Volunteer[] }>({});
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -77,7 +75,6 @@ const TaskTable: React.FC<TaskTableProps> = ({ onAddRow }) => {
       const currentVolunteers = volunteerAssignments[cellKey] || [];
 
       if (volunteer) {
-        // Add the new volunteer to the array
         setVolunteerAssignments({
           ...volunteerAssignments,
           [cellKey]: [...currentVolunteers, volunteer],
@@ -92,7 +89,6 @@ const TaskTable: React.FC<TaskTableProps> = ({ onAddRow }) => {
     const cellKey = `${rowIndex}-${cellIndex}`;
     const currentVolunteers = volunteerAssignments[cellKey] || [];
 
-    // Remove the volunteer by name
     const updatedVolunteers = currentVolunteers.filter((v) => v.name !== volunteerName);
 
     setVolunteerAssignments({
@@ -101,133 +97,133 @@ const TaskTable: React.FC<TaskTableProps> = ({ onAddRow }) => {
     });
   };
 
-
-  // Get a list of all volunteers assigned to the selected hour
   const getAssignedVolunteersForHour = (hourIndex: number): string[] => {
     return Object.entries(volunteerAssignments)
-      .filter(([key]) => key.endsWith(`-${hourIndex}`)) // Match cells in the same hour
-      .flatMap(([, volunteers]) => volunteers.map((v) => v.name)); // Extract volunteer names
+      .filter(([key]) => key.endsWith(`-${hourIndex}`))
+      .flatMap(([, volunteers]) => volunteers.map((v) => v.name));
   };
 
   return (
     <div id="table-container" className="mt-8">
-      <table id="table" className="w-full border-collapse border border-gray-300">
-        <thead>
-          <tr>
-            <th id="task-header" className="font-bold border border-gray-300">Tasks</th>
-            <th className="border border-gray-300">Actions</th>
-            {Array.from({ length: 10 }, (_, i) => {
-              const hour = 8 + i; // Start from 8 AM
-              const formattedHour = hour > 12 ? hour - 12 : hour; // Convert to 12-hour format
-              const period = hour >= 12 ? 'PM' : 'AM'; // Determine AM/PM
-              const timeLabel = `${formattedHour}:00 ${period}`;
-              return (
-                <th key={i} className="border border-gray-300">
-                  {timeLabel}
-                </th>
-              );
-            })}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, rowIndex) => (
-            <tr key={rowIndex}>
-              <td className="border border-gray-300">
-                {editedTaskIndex === rowIndex ? (
-                  <input
-                    type="text"
-                    className="w-full p-2 border border-gray-300 rounded"
-                    value={taskNames[rowIndex] || ''}
-                    onChange={(e) => handleTaskNameChange(rowIndex, e.target.value)}
-                  />
-                ) : (
-                  taskNames[rowIndex]
-                )}
-              </td>
-              <td className="border border-gray-300 text-center">
-                {editedTaskIndex === rowIndex ? (
-                  <button
-                    className="mt-2 bg-green-500 text-white px-4 py-2 rounded"
-                    onClick={() => setEditedTaskIndex(null)}
-                  >
-                    Save
-                  </button>
-                ) : (
-                  <>
-                    <button
-                      className="mt-2 bg-blue-500 text-white px-4 py-2 rounded mr-2"
-                      onClick={() => setEditedTaskIndex(rowIndex)}
-                    >
-                      Edit
-                    </button>
-                    <button
-                      className="mt-2 bg-red-500 text-white px-4 py-2 rounded"
-                      onClick={() => handleDeleteTask(rowIndex)}
-                    >
-                      Delete
-                    </button>
-                  </>
-                )}
-              </td>
-              {row.map((_, cellIndex) => {
-                const cellKey = `${rowIndex}-${cellIndex}`;
-                const assignedVolunteers = volunteerAssignments[cellKey] || [];
-
+      {/* Add a wrapper with overflow-x-auto */}
+      <div className="overflow-x-auto">
+        <table id="table" className="w-full min-w-[800px] border-collapse border border-gray-300">
+          <thead>
+            <tr>
+              <th id="task-header" className="font-bold border border-gray-300">Tasks</th>
+              <th className="border border-gray-300">Actions</th>
+              {Array.from({ length: 10 }, (_, i) => {
+                const hour = 8 + i;
+                const formattedHour = hour > 12 ? hour - 12 : hour;
+                const period = hour >= 12 ? 'PM' : 'AM';
+                const timeLabel = `${formattedHour}:00 ${period}`;
                 return (
-                  <td key={cellIndex} className="border border-gray-300 text-center">
-                    <div>
-                      {assignedVolunteers.map((volunteer) => (
-                        <div
-                          key={volunteer.name}
-                          className="flex items-center justify-between mb-1"
-                        >
-                          <span
-                            style={{ color: volunteer.color }} // Highlight name with assigned color
-                            className="font-semibold"
-                          >
-                            {volunteer.name}
-                          </span>
-                          <button
-                            className="text-red-500 hover:text-red-700 ml-2"
-                            onClick={() => handleRemoveVolunteer(rowIndex, cellIndex, volunteer.name)}
-                          >
-                            ✖
-                          </button>
-                        </div>
-                      ))}
-                      <button
-                        className="mt-2 bg-gray-300 text-black px-2 py-1 rounded"
-                        onClick={() => handleOpenModal(rowIndex, cellIndex)}
-                      >
-                        Add Volunteer
-                      </button>
-                    </div>
-                  </td>
+                  <th key={i} className="border border-gray-300">
+                    {timeLabel}
+                  </th>
                 );
               })}
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {rows.map((row, rowIndex) => (
+              <tr key={rowIndex}>
+                <td className="border border-gray-300">
+                  {editedTaskIndex === rowIndex ? (
+                    <input
+                      type="text"
+                      className="w-full p-2 border border-gray-300 rounded"
+                      value={taskNames[rowIndex] || ''}
+                      onChange={(e) => handleTaskNameChange(rowIndex, e.target.value)}
+                    />
+                  ) : (
+                    taskNames[rowIndex]
+                  )}
+                </td>
+                <td className="border border-gray-300 text-center">
+                  {editedTaskIndex === rowIndex ? (
+                    <button
+                      className="mt-2 bg-green-500 text-white px-4 py-2 rounded"
+                      onClick={() => setEditedTaskIndex(null)}
+                    >
+                      Save
+                    </button>
+                  ) : (
+                    <>
+                      <button
+                        className="mt-2 bg-blue-500 text-white px-4 py-2 rounded mr-2"
+                        onClick={() => setEditedTaskIndex(rowIndex)}
+                      >
+                        Edit
+                      </button>
+                      <button
+                        className="mt-2 bg-red-500 text-white px-4 py-2 rounded"
+                        onClick={() => handleDeleteTask(rowIndex)}
+                      >
+                        Delete
+                      </button>
+                    </>
+                  )}
+                </td>
+                {row.map((_, cellIndex) => {
+                  const cellKey = `${rowIndex}-${cellIndex}`;
+                  const assignedVolunteers = volunteerAssignments[cellKey] || [];
+
+                  return (
+                    <td key={cellIndex} className="border border-gray-300 text-center">
+                      <div>
+                        {assignedVolunteers.map((volunteer) => (
+                          <div
+                            key={volunteer.name}
+                            className="flex items-center justify-between mb-1"
+                          >
+                            <span
+                              style={{ color: volunteer.color }}
+                              className="font-semibold"
+                            >
+                              {volunteer.name}
+                            </span>
+                            <button
+                              className="text-red-500 hover:text-red-700 ml-2"
+                              onClick={() => handleRemoveVolunteer(rowIndex, cellIndex, volunteer.name)}
+                            >
+                              ✖
+                            </button>
+                          </div>
+                        ))}
+                        <button
+                          className="mt-2 bg-gray-300 text-black px-2 py-1 rounded"
+                          onClick={() => handleOpenModal(rowIndex, cellIndex)}
+                        >
+                          Add Volunteer
+                        </button>
+                      </div>
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
 
       <button
         id="newRowBtn"
         className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
         onClick={() => {
           onAddRow();
-          setTaskNames([...taskNames, '']); // Add an empty task name for the new row
-          setRows([...rows, Array(10).fill('')]); // Add a new empty row
+          setTaskNames([...taskNames, '']);
+          setRows([...rows, Array(10).fill('')]);
         }}
       >
         Add New Task
       </button>
 
-      {isModalOpen &&  selectedCell &&(
+      {isModalOpen && selectedCell && (
         <VolunteerModal
           onClose={() => setIsModalOpen(false)}
           onSelect={handleSelectVolunteer}
-          excludedVolunteers={getAssignedVolunteersForHour(selectedCell.cellIndex)} // Pass excluded volunteers
-         
+          excludedVolunteers={getAssignedVolunteersForHour(selectedCell.cellIndex)}
         />
       )}
     </div>
