@@ -69,32 +69,85 @@ const TaskTable: React.FC<TaskTableProps> = ({ onAddRow }) => {
     setIsModalOpen(true);
   };
 
-  const handleSelectVolunteer = (volunteer: Volunteer | null) => {
+  const handleSelectVolunteer = async (volunteer: Volunteer | null) => {
     if (selectedCell) {
-      const cellKey = `${selectedCell.rowIndex}-${selectedCell.cellIndex}`;
-      const currentVolunteers = volunteerAssignments[cellKey] || [];
-
+      const { rowIndex, cellIndex } = selectedCell;
+  
       if (volunteer) {
-        setVolunteerAssignments({
-          ...volunteerAssignments,
-          [cellKey]: [...currentVolunteers, volunteer],
-        });
+        const taskName = taskNames[rowIndex]; // Use the task name as the identifier
+        const hourIndex = cellIndex;
+  
+        try {
+          console.log('Sending payload:', { taskName, hourIndex, volunteer, action: 'add' }); // Log the payload
+          const response = await fetch('/api/tasks', {
+            method: 'PATCH',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              taskName,
+              hourIndex,
+              volunteer,
+              action: 'add',
+            }),
+          });
+  
+          if (!response.ok) {
+            const errorData = await response.json();
+            console.error('Backend error:', errorData); // Log the backend error
+            throw new Error('Failed to save volunteer assignment');
+          }
+  
+          // Update the local state
+          const cellKey = `${rowIndex}-${cellIndex}`;
+          const currentVolunteers = volunteerAssignments[cellKey] || [];
+          setVolunteerAssignments({
+            ...volunteerAssignments,
+            [cellKey]: [...currentVolunteers, volunteer],
+          });
+        } catch (error) {
+          console.error('Error saving volunteer assignment:', error);
+        }
       }
-
+  
       setIsModalOpen(false);
     }
   };
 
-  const handleRemoveVolunteer = (rowIndex: number, cellIndex: number, volunteerName: string) => {
-    const cellKey = `${rowIndex}-${cellIndex}`;
-    const currentVolunteers = volunteerAssignments[cellKey] || [];
-
-    const updatedVolunteers = currentVolunteers.filter((v) => v.name !== volunteerName);
-
-    setVolunteerAssignments({
-      ...volunteerAssignments,
-      [cellKey]: updatedVolunteers,
-    });
+  const handleRemoveVolunteer = async (rowIndex: number, cellIndex: number, volunteerName: string) => {
+    const taskName = taskNames[rowIndex]; // Use the actual task ID
+    const hourIndex = cellIndex;
+  
+    try {
+      const response = await fetch('/api/tasks', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          taskName,
+          hourIndex,
+          volunteer: { name: volunteerName },
+          action: 'remove',
+        }),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Failed to remove volunteer assignment');
+      }
+  
+      // Update the local state
+      const cellKey = `${rowIndex}-${cellIndex}`;
+      const currentVolunteers = volunteerAssignments[cellKey] || [];
+      const updatedVolunteers = currentVolunteers.filter((v) => v.name !== volunteerName);
+  
+      setVolunteerAssignments({
+        ...volunteerAssignments,
+        [cellKey]: updatedVolunteers,
+      });
+    } catch (error) {
+      console.error('Error removing volunteer assignment:', error);
+    }
   };
 
   const getAssignedVolunteersForHour = (hourIndex: number): string[] => {
