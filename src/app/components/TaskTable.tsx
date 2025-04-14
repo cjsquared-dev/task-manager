@@ -22,14 +22,29 @@ const TaskTable: React.FC<TaskTableProps> = ({ onAddRow }) => {
   useEffect(() => {
     const fetchTasks = async () => {
       try {
-        const response = await fetch('/api/tasks'); // Replace with your API endpoint
+        const response = await fetch('/api/tasks');
         if (!response.ok) {
           throw new Error('Failed to fetch tasks');
         }
         const data = await response.json();
+
         if (data.length > 0) {
           setTaskNames(data.map((task: { name: string }) => task.name));
           setRows(data.map(() => Array(10).fill(''))); // Create rows dynamically based on tasks
+
+          // Process volunteer assignments
+          const assignments: { [key: string]: Volunteer[] } = {};
+          data.forEach((task: { name: string; volunteers: { [key: string]: Volunteer[] } }) => {
+            if (task.volunteers) {
+              Object.entries(task.volunteers as { [key: string]: Volunteer[] }).forEach(([hourKey, volunteers]: [string, Volunteer[]]) => {
+                const rowIndex = data.findIndex((t: { name: string }) => t.name === task.name);
+                const cellIndex = parseInt(hourKey.split('-')[1], 10); // Extract hour index
+                const cellKey = `${rowIndex}-${cellIndex}`;
+                assignments[cellKey] = volunteers;
+              });
+            }
+          });
+          setVolunteerAssignments(assignments);
         }
       } catch (error) {
         console.error('Error fetching tasks:', error);
@@ -72,11 +87,11 @@ const TaskTable: React.FC<TaskTableProps> = ({ onAddRow }) => {
   const handleSelectVolunteer = async (volunteer: Volunteer | null) => {
     if (selectedCell) {
       const { rowIndex, cellIndex } = selectedCell;
-  
+
       if (volunteer) {
         const taskName = taskNames[rowIndex]; // Use the task name as the identifier
         const hourIndex = cellIndex;
-  
+
         try {
           console.log('Sending payload:', { taskName, hourIndex, volunteer, action: 'add' }); // Log the payload
           const response = await fetch('/api/tasks', {
@@ -91,13 +106,13 @@ const TaskTable: React.FC<TaskTableProps> = ({ onAddRow }) => {
               action: 'add',
             }),
           });
-  
+
           if (!response.ok) {
             const errorData = await response.json();
             console.error('Backend error:', errorData); // Log the backend error
             throw new Error('Failed to save volunteer assignment');
           }
-  
+
           // Update the local state
           const cellKey = `${rowIndex}-${cellIndex}`;
           const currentVolunteers = volunteerAssignments[cellKey] || [];
@@ -109,7 +124,7 @@ const TaskTable: React.FC<TaskTableProps> = ({ onAddRow }) => {
           console.error('Error saving volunteer assignment:', error);
         }
       }
-  
+
       setIsModalOpen(false);
     }
   };
@@ -117,7 +132,7 @@ const TaskTable: React.FC<TaskTableProps> = ({ onAddRow }) => {
   const handleRemoveVolunteer = async (rowIndex: number, cellIndex: number, volunteerName: string) => {
     const taskName = taskNames[rowIndex]; // Use the actual task ID
     const hourIndex = cellIndex;
-  
+
     try {
       const response = await fetch('/api/tasks', {
         method: 'PATCH',
@@ -131,16 +146,16 @@ const TaskTable: React.FC<TaskTableProps> = ({ onAddRow }) => {
           action: 'remove',
         }),
       });
-  
+
       if (!response.ok) {
         throw new Error('Failed to remove volunteer assignment');
       }
-  
+
       // Update the local state
       const cellKey = `${rowIndex}-${cellIndex}`;
       const currentVolunteers = volunteerAssignments[cellKey] || [];
       const updatedVolunteers = currentVolunteers.filter((v) => v.name !== volunteerName);
-  
+
       setVolunteerAssignments({
         ...volunteerAssignments,
         [cellKey]: updatedVolunteers,
