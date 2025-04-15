@@ -171,6 +171,7 @@ const TaskTable: React.FC<TaskTableProps> = ({ onAddRow }) => {
       .flatMap(([, volunteers]) => volunteers.map((v) => v.name));
   };
 
+  const [taskIds, setTaskIds] = useState<string[]>([]);
   return (
     <div id="table-container" className="mt-8">
       {/* Add a wrapper with overflow-x-auto */}
@@ -276,16 +277,37 @@ const TaskTable: React.FC<TaskTableProps> = ({ onAddRow }) => {
       </div>
 
       <button
-        id="newRowBtn"
-        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-        onClick={() => {
-          onAddRow();
-          setTaskNames([...taskNames, '']);
-          setRows([...rows, Array(10).fill('')]);
-        }}
-      >
-        Add New Task
-      </button>
+  id="newRowBtn"
+  className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+  onClick={async () => {
+    const newTaskName = 'New Task';
+    try {
+      const response = await fetch('/api/tasks', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name: newTaskName }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to create task');
+      }
+
+      const data = await response.json();
+      console.log('Task created successfully:', data);
+
+      // Update the frontend state
+      setTaskNames([...taskNames, newTaskName]);
+      setRows([...rows, Array(10).fill('')]);
+      setTaskIds([...taskIds, data.task._id]); // Save the task ID
+    } catch (error) {
+      console.error('Error creating task:', error);
+    }
+  }}
+>
+  Add New Task
+</button>
 
       {isModalOpen && selectedCell && (
         <VolunteerModal

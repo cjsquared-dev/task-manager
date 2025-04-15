@@ -1,22 +1,38 @@
 import { NextResponse } from 'next/server';
 import { dbConnect } from '../../../lib/db';
-import Task from '../../../lib/models/Task';
+import { Task } from '../../../lib/models/Task.model';
+import { Volunteer } from '../../../lib/models/Volunteer.model';
 
 // POST: Save a new task
 export async function POST(req: Request) {
   try {
-    const { name } = await req.json();
+    const { name, volunteers } = await req.json();
+    console.log('POST request payload:', { name, volunteers }); // Log the payload
 
     if (!name) {
+      console.error('Task name is required');
       return NextResponse.json({ error: 'Task name is required' }, { status: 400 });
     }
 
     await dbConnect();
 
-    const newTask = new Task({ name });
+    // If volunteers are provided, validate their ObjectIds
+    let volunteerIds = [];
+    if (volunteers && volunteers.length > 0) {
+      const validVolunteers = await Volunteer.find({ _id: { $in: volunteers } });
+      volunteerIds = validVolunteers.map((volunteer) => volunteer._id);
+    }
+
+    // Create a new task
+    const newTask = new Task({
+      name,
+      volunteers: volunteerIds, // Add validated volunteer ObjectIds
+    });
+
     await newTask.save();
 
-    return NextResponse.json({ message: 'Task saved successfully' }, { status: 201 });
+    console.log('Task saved successfully:', newTask);
+    return NextResponse.json({ message: 'Task saved successfully', task: newTask }, { status: 201 });
   } catch (error) {
     console.error('Error saving task:', error);
     return NextResponse.json({ error: 'Failed to save task' }, { status: 500 });
@@ -37,7 +53,6 @@ export async function GET() {
   }
 }
 
-// DELETE: Delete a task by name
 // DELETE: Delete a task by name
 export async function DELETE(req: Request) {
   try {
