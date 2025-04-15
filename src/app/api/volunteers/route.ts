@@ -1,15 +1,16 @@
 import { NextResponse } from 'next/server';
 import { dbConnect } from '../../../lib/db';
-import Volunteer from '../../../lib/models/Volunteer';
+import { Volunteer } from '../../../lib/models/Volunteer.model';
 
 // This function handles POST requests to save a new volunteer
 export async function POST(req: Request) {
   try {
     const { name, color } = await req.json();
+    console.log('POST request payload:', { name, color }); // Log the payload
 
     if (!name || !color) {
+      console.error('Invalid payload:', { name, color });
       return NextResponse.json({ error: 'Name and color are required' }, { status: 400 });
-
     }
 
     await dbConnect();
@@ -17,6 +18,7 @@ export async function POST(req: Request) {
     const newVolunteer = new Volunteer({ name, color });
     await newVolunteer.save();
 
+    console.log('Volunteer saved successfully:', newVolunteer);
     return NextResponse.json({ message: 'Volunteer saved successfully' }, { status: 201 });
   } catch (error) {
     console.error('Error saving volunteer:', error);
