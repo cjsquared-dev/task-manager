@@ -104,7 +104,7 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: 'Hour slot not found' }, { status: 404 });
     }
 
-    // Check if the volunteer is already assigned to the hour slot
+    // Check if th
 
     if (action === 'add') {
       // Add the volunteer to the hour slot
