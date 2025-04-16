@@ -78,22 +78,32 @@ export async function DELETE(req: Request) {
   }
 }
 
-// PATCH: Update task volunteers
+// PATCH: Update task name or volunteers
 export async function PATCH(req: Request) {
   try {
-    const { taskName, hourIndex, volunteer, action } = await req.json();
-    console.log('PATCH request payload:', { taskName, hourIndex, volunteer, action }); // Log the payload
-
-    if (!taskName || hourIndex === undefined || !volunteer || !action) {
-      console.error('Invalid payload:', { taskName, hourIndex, volunteer, action });
-      return NextResponse.json({ error: 'Task name, hour index, volunteer, and action are required' }, { status: 400 });
-    }
+    const { taskId, name, hourIndex, volunteer, action } = await req.json();
+    console.log('PATCH request payload:', { taskId, name, hourIndex, volunteer, action }); // Log the payload
 
     await dbConnect();
 
-    const task = await Task.findOne({ name: taskName }); // Find task by name
+    if (name && taskId) {
+      // Update task name
+      const updatedTask = await Task.findByIdAndUpdate(taskId, { name }, { new: true });
+      if (!updatedTask) {
+        return NextResponse.json({ error: 'Task not found' }, { status: 404 });
+      }
+      console.log('Task name updated successfully:', updatedTask);
+      return NextResponse.json({ message: 'Task name updated successfully', task: updatedTask }, { status: 200 });
+    }
+
+    if (!taskId || hourIndex === undefined || !volunteer || !action) {
+      console.error('Invalid payload:', { taskId, hourIndex, volunteer, action });
+      return NextResponse.json({ error: 'Task ID, hour index, volunteer, and action are required' }, { status: 400 });
+    }
+
+    const task = await Task.findById(taskId); // Find task by ID
     if (!task) {
-      console.error('Task not found:', taskName);
+      console.error('Task not found:', taskId);
       return NextResponse.json({ error: 'Task not found' }, { status: 404 });
     }
 
@@ -106,8 +116,6 @@ export async function PATCH(req: Request) {
     console.log('Current volunteers:', task.volunteers[hourKey]); // Log current volunteers for the hour
     console.log('Action:', action); // Log the action
     console.log('Volunteer:', volunteer); // Log the volunteer
-    console.log('volunteer name:', volunteer.name); // Log the volunteer name
-
 
     if (action === 'add') {
       // Add the volunteer to the specified hour
@@ -128,10 +136,9 @@ export async function PATCH(req: Request) {
     await task.save();
     console.log('Updated task:', task);
 
-    console.log('Volunteer assignment updated successfully:', { taskName, hourIndex, volunteer, action });
     return NextResponse.json({ message: 'Volunteer assignment updated successfully' }, { status: 200 });
   } catch (error) {
-    console.error('Error updating volunteer assignment:', error);
-    return NextResponse.json({ error: 'Failed to update volunteer assignment' }, { status: 500 });
+    console.error('Error updating task:', error);
+    return NextResponse.json({ error: 'Failed to update task' }, { status: 500 });
   }
 }

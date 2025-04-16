@@ -55,6 +55,39 @@ const TaskTable: React.FC<TaskTableProps> = () => {
     fetchTasks();
   }, []);
 
+  const handleSaveTaskName = async (index: number) => {
+    const taskId = taskIds[index]; // Get the task ID
+    const taskName = taskNames[index]; // Get the updated task name
+  
+    if (!taskName.trim()) {
+      alert('Task name is required');
+      return;
+    }
+  
+    try {
+      const response = await fetch('/api/tasks', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ taskId, name: taskName }), // Send taskId and updated name
+      });
+  
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Backend error:', errorData);
+        throw new Error('Failed to update task name');
+      }
+  
+      const data = await response.json();
+      console.log('Task name updated successfully:', data);
+  
+      setEditedTaskIndex(null); // Exit edit mode
+    } catch (error) {
+      console.error('Error updating task name:', error);
+    }
+  };
+
   
 
   const handleTaskNameChange = (index: number, value: string) => {
@@ -236,7 +269,7 @@ const TaskTable: React.FC<TaskTableProps> = () => {
                   {editedTaskIndex === rowIndex ? (
                     <button
                       className="mt-2 bg-green-500 text-white px-4 py-2 rounded"
-                      onClick={() => setEditedTaskIndex(null)}
+                      onClick={() => handleSaveTaskName(rowIndex)}
                     >
                       Save
                     </button>
