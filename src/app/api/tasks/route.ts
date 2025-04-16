@@ -40,7 +40,7 @@ export async function GET() {
   try {
     await dbConnect();
 
-    const tasks = await Task.find({});
+    const tasks = await Task.find({}).select('name hourIndex'); // Fetch only the required fields
 
     return NextResponse.json(tasks, { status: 200 });
   } catch (error) {
@@ -105,7 +105,7 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: 'Hour slot not found' }, { status: 404 });
     }
 
-    // Check if th
+    // Check if the action is valid
 
     if (action === 'add') {
       // Validate and convert volunteer._id to ObjectId

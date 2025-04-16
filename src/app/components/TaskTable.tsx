@@ -30,16 +30,19 @@ const TaskTable: React.FC<TaskTableProps> = () => {
 
         if (data.length > 0) {
           setTaskNames(data.map((task: { name: string }) => task.name));
-          setTaskIds(data.map((task: { _id: string }) => task._id)); // Ensure taskIds are populated
+          setTaskIds(data.map((task: { _id: string }) => task._id)); // Populate taskIds with _id
           setRows(data.map(() => Array(10).fill(''))); // Create rows dynamically based on tasks
 
           // Process volunteer assignments
           const assignments: { [key: string]: Volunteer[] } = {};
-          data.forEach((task: { _id: string; hourIndex: { index: number; volunteers: Volunteer[] }[] }) => {
+          data.forEach((task: { _id: string; hourIndex: { index: number; volunteers: { name: string; color: string }[] }[] }) => {
             task.hourIndex.forEach((hourSlot) => {
               const rowIndex = data.findIndex((t: { _id: string }) => t._id === task._id);
               const cellKey = `${rowIndex}-${hourSlot.index}`;
-              assignments[cellKey] = hourSlot.volunteers;
+              assignments[cellKey] = hourSlot.volunteers.map((volunteer) => ({
+                name: volunteer.name,
+                color: volunteer.color || '#000', // Default color if not provided
+              }));
             });
           });
           setVolunteerAssignments(assignments);
@@ -141,11 +144,11 @@ const TaskTable: React.FC<TaskTableProps> = () => {
   const handleSelectVolunteer = async (volunteer: Volunteer | null) => {
     if (selectedCell) {
       const { rowIndex, cellIndex } = selectedCell;
-
+  
       if (volunteer) {
         const taskId = taskIds[rowIndex]; // Use taskId instead of taskName
         const hourIndex = cellIndex;
-
+  
         try {
           console.log('Sending payload:', { taskId, hourIndex, volunteer, action: 'add' });
           const response = await fetch('/api/tasks', {
@@ -160,60 +163,71 @@ const TaskTable: React.FC<TaskTableProps> = () => {
               action: 'add',
             }),
           });
-
+  
           if (!response.ok) {
             const errorData = await response.json();
             console.error('Backend error:', errorData);
             throw new Error('Failed to save volunteer assignment');
           }
-
+  
           // Update the local state
           const cellKey = `${rowIndex}-${cellIndex}`;
           const currentVolunteers = volunteerAssignments[cellKey] || [];
           setVolunteerAssignments({
             ...volunteerAssignments,
-            [cellKey]: [...currentVolunteers, volunteer],
+            [cellKey]: [...currentVolunteers, volunteer], // Add the new volunteer
           });
         } catch (error) {
           console.error('Error saving volunteer assignment:', error);
         }
       }
-
+  
       setIsModalOpen(false);
     }
   };
 
   const handleRemoveVolunteer = async (rowIndex: number, cellIndex: number, volunteerName: string) => {
-    const taskName = taskNames[rowIndex]; // Use the actual task ID
-    const hourIndex = cellIndex;
-
+    const taskId = taskIds[rowIndex]; // Get the task ID from the taskIds array
+    const hourIndex = cellIndex; // Get the hour index
+  
+    if (!taskId) {
+      console.error('Task ID not found for rowIndex:', rowIndex);
+      return;
+    }
+  
     try {
+      console.log('Sending payload to remove volunteer:', { taskId, hourIndex, volunteerName });
+  
       const response = await fetch('/api/tasks', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          taskName,
-          hourIndex,
-          volunteer: { name: volunteerName },
-          action: 'remove',
+          taskId, // Include the task ID
+          hourIndex, // Include the hour index
+          volunteer: { name: volunteerName }, // Include the volunteer's name
+          action: 'remove', // Specify the action
         }),
       });
-
+  
       if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Backend error:', errorData);
         throw new Error('Failed to remove volunteer assignment');
       }
-
+  
       // Update the local state
       const cellKey = `${rowIndex}-${cellIndex}`;
       const currentVolunteers = volunteerAssignments[cellKey] || [];
       const updatedVolunteers = currentVolunteers.filter((v) => v.name !== volunteerName);
-
+  
       setVolunteerAssignments({
         ...volunteerAssignments,
         [cellKey]: updatedVolunteers,
       });
+  
+      console.log('Volunteer removed successfully:', volunteerName);
     } catch (error) {
       console.error('Error removing volunteer assignment:', error);
     }
@@ -293,15 +307,15 @@ const TaskTable: React.FC<TaskTableProps> = () => {
                   const assignedVolunteers = volunteerAssignments[cellKey] || []; // Get volunteers for the cell
 
                   return (
-                    <td key={cellIndex} className="border border-gray-300 text-center">
+                    <td key={cellKey} className="border border-gray-300 text-center">
                       <div>
                         {assignedVolunteers.map((volunteer, index) => (
                           <div
-                            key={`${volunteer.name}-${index}`} // Use a unique key combining the volunteer's name and index
+                            key={`${volunteer.name}-${index}`} // Unique key for each volunteer
                             className="flex items-center justify-between mb-1"
                           >
                             <span
-                              style={{ color: volunteer.color }}
+                              style={{ color: volunteer.color }} // Use the volunteer's color
                               className="font-semibold"
                             >
                               {volunteer.name}
