@@ -1,13 +1,12 @@
 import { model, models, Schema } from 'mongoose';
-import { v4 as uuidv4 } from 'uuid';
 import { IVolunteer } from '../types/interfaces/volunteer.interface';
+import mongoose from 'mongoose';
 
 const VolunteerSchema = new Schema<IVolunteer>(
 
   {
-    _id: {
-      type: String,
-      default: uuidv4,
+    _id: { type: mongoose.Schema.Types.ObjectId,
+      default: () => new mongoose.Types.ObjectId() 
     },
     name: { 
       type: String, 

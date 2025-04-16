@@ -27,12 +27,12 @@ const TaskTable: React.FC<TaskTableProps> = () => {
           throw new Error('Failed to fetch tasks');
         }
         const data = await response.json();
-  
+
         if (data.length > 0) {
           setTaskNames(data.map((task: { name: string }) => task.name));
           setTaskIds(data.map((task: { _id: string }) => task._id)); // Ensure taskIds are populated
           setRows(data.map(() => Array(10).fill(''))); // Create rows dynamically based on tasks
-  
+
           // Process volunteer assignments
           const assignments: { [key: string]: Volunteer[] } = {};
           data.forEach((task: { _id: string; hourIndex: { index: number; volunteers: Volunteer[] }[] }) => {
@@ -48,7 +48,7 @@ const TaskTable: React.FC<TaskTableProps> = () => {
         console.error('Error fetching tasks:', error);
       }
     };
-  
+
     fetchTasks();
   }, []);
 
@@ -58,12 +58,12 @@ const TaskTable: React.FC<TaskTableProps> = () => {
   const handleSaveTaskName = async (index: number) => {
     const taskId = taskIds[index]; // Get the task ID
     const taskName = taskNames[index]; // Get the updated task name
-  
+
     if (!taskName.trim()) {
       alert('Task name is required');
       return;
     }
-  
+
     try {
       const response = await fetch('/api/tasks', {
         method: 'PATCH',
@@ -72,16 +72,16 @@ const TaskTable: React.FC<TaskTableProps> = () => {
         },
         body: JSON.stringify({ taskId, name: taskName }), // Send taskId and updated name
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Backend error:', errorData);
         throw new Error('Failed to update task name');
       }
-  
+
       const data = await response.json();
       console.log('Task name updated successfully:', data);
-  
+
       setEditedTaskIndex(null); // Exit edit mode
     } catch (error) {
       console.error('Error updating task name:', error);
@@ -141,11 +141,11 @@ const TaskTable: React.FC<TaskTableProps> = () => {
   const handleSelectVolunteer = async (volunteer: Volunteer | null) => {
     if (selectedCell) {
       const { rowIndex, cellIndex } = selectedCell;
-  
+
       if (volunteer) {
         const taskId = taskIds[rowIndex]; // Use taskId instead of taskName
         const hourIndex = cellIndex;
-  
+
         try {
           console.log('Sending payload:', { taskId, hourIndex, volunteer, action: 'add' });
           const response = await fetch('/api/tasks', {
@@ -160,13 +160,13 @@ const TaskTable: React.FC<TaskTableProps> = () => {
               action: 'add',
             }),
           });
-  
+
           if (!response.ok) {
             const errorData = await response.json();
             console.error('Backend error:', errorData);
             throw new Error('Failed to save volunteer assignment');
           }
-  
+
           // Update the local state
           const cellKey = `${rowIndex}-${cellIndex}`;
           const currentVolunteers = volunteerAssignments[cellKey] || [];
@@ -178,7 +178,7 @@ const TaskTable: React.FC<TaskTableProps> = () => {
           console.error('Error saving volunteer assignment:', error);
         }
       }
-  
+
       setIsModalOpen(false);
     }
   };
@@ -295,9 +295,9 @@ const TaskTable: React.FC<TaskTableProps> = () => {
                   return (
                     <td key={cellIndex} className="border border-gray-300 text-center">
                       <div>
-                        {assignedVolunteers.map((volunteer) => (
+                        {assignedVolunteers.map((volunteer, index) => (
                           <div
-                            key={volunteer.name}
+                            key={`${volunteer.name}-${index}`} // Use a unique key combining the volunteer's name and index
                             className="flex items-center justify-between mb-1"
                           >
                             <span

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { dbConnect } from '../../../lib/db';
 import { Task } from '../../../lib/models/Task.model';
+import mongoose from 'mongoose';
 
 // POST: Save a new task
 export async function POST(req: Request) {
@@ -107,13 +108,21 @@ export async function PATCH(req: Request) {
     // Check if th
 
     if (action === 'add') {
+      // Validate and convert volunteer._id to ObjectId
+      if (!mongoose.Types.ObjectId.isValid(volunteer._id)) {
+        console.error('Invalid volunteer ID:', volunteer._id);
+        return NextResponse.json({ error: 'Invalid volunteer ID' }, { status: 400 });
+      }
+
+      const volunteerId = new mongoose.Types.ObjectId(volunteer._id);
+
       // Add the volunteer to the hour slot
       const existingVolunteer = hourSlot.volunteers.find(
-        (v: string) => v.toString() === volunteer._id
+        (v: string) => v.toString() === volunteerId.toString()
       );
 
       if (!existingVolunteer) {
-        hourSlot.volunteers.push(volunteer._id); // Add the volunteer's ObjectId
+        hourSlot.volunteers.push(volunteerId); // Add the volunteer's ObjectId
       }
     } else if (action === 'remove') {
       // Remove the volunteer from the hour slot
