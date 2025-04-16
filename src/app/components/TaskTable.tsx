@@ -11,7 +11,7 @@ interface Volunteer {
   color: string;
 }
 
-const TaskTable: React.FC<TaskTableProps> = ({ onAddRow }) => {
+const TaskTable: React.FC<TaskTableProps> = () => {
   const [taskNames, setTaskNames] = useState<string[]>([]);
   const [rows, setRows] = useState<string[][]>([]);
   const [editedTaskIndex, setEditedTaskIndex] = useState<number | null>(null);
@@ -27,11 +27,12 @@ const TaskTable: React.FC<TaskTableProps> = ({ onAddRow }) => {
           throw new Error('Failed to fetch tasks');
         }
         const data = await response.json();
-
+  
         if (data.length > 0) {
           setTaskNames(data.map((task: { name: string }) => task.name));
+          setTaskIds(data.map((task: { _id: string }) => task._id)); // Populate taskIds with _id
           setRows(data.map(() => Array(10).fill(''))); // Create rows dynamically based on tasks
-
+  
           // Process volunteer assignments
           const assignments: { [key: string]: Volunteer[] } = {};
           data.forEach((task: { name: string; volunteers: { [key: string]: Volunteer[] } }) => {
@@ -50,9 +51,11 @@ const TaskTable: React.FC<TaskTableProps> = ({ onAddRow }) => {
         console.error('Error fetching tasks:', error);
       }
     };
-
+  
     fetchTasks();
   }, []);
+
+  
 
   const handleTaskNameChange = (index: number, value: string) => {
     const updatedTaskNames = [...taskNames];
@@ -60,7 +63,27 @@ const TaskTable: React.FC<TaskTableProps> = ({ onAddRow }) => {
     setTaskNames(updatedTaskNames);
   };
 
-  const handleDeleteTask = (index: number) => {
+  const handleDeleteTask = async (index: number) => {
+  const taskId = taskIds[index]; // Use the task ID from the taskIds array
+  console.log('Deleting task with ID:', taskId); // Log the task ID for debugging
+
+  if (!taskId) {
+    console.error('Task ID not found for index:', index);
+    return;
+  }
+
+  try {
+    const response = await fetch(`/api/tasks?id=${taskId}`, {
+      method: 'DELETE',
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      console.error('Backend error:', errorData);
+      throw new Error('Failed to delete task');
+    }
+
+    // Update the frontend state
     const updatedTaskNames = [...taskNames];
     updatedTaskNames.splice(index, 1); // Remove the task name
     setTaskNames(updatedTaskNames);
@@ -69,15 +92,15 @@ const TaskTable: React.FC<TaskTableProps> = ({ onAddRow }) => {
     updatedRows.splice(index, 1); // Remove the corresponding row
     setRows(updatedRows);
 
-    // Remove all volunteer assignments for the deleted row
-    const updatedVolunteerAssignments = { ...volunteerAssignments };
-    Object.keys(updatedVolunteerAssignments).forEach((key) => {
-      if (key.startsWith(`${index}-`)) {
-        delete updatedVolunteerAssignments[key];
-      }
-    });
-    setVolunteerAssignments(updatedVolunteerAssignments);
-  };
+    const updatedTaskIds = [...taskIds];
+    updatedTaskIds.splice(index, 1); // Remove the task ID
+    setTaskIds(updatedTaskIds);
+
+    console.log('Task deleted successfully');
+  } catch (error) {
+    console.error('Error deleting task:', error);
+  }
+};
 
   const handleOpenModal = (rowIndex: number, cellIndex: number) => {
     setSelectedCell({ rowIndex, cellIndex });
@@ -301,6 +324,7 @@ const TaskTable: React.FC<TaskTableProps> = ({ onAddRow }) => {
       setTaskNames([...taskNames, newTaskName]);
       setRows([...rows, Array(10).fill('')]);
       setTaskIds([...taskIds, data.task._id]); // Save the task ID
+      console.log('Task IDs:', taskIds); // Log the task IDs
     } catch (error) {
       console.error('Error creating task:', error);
     }

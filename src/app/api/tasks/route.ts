@@ -53,19 +53,20 @@ export async function GET() {
   }
 }
 
-// DELETE: Delete a task by name
+// DELETE: Delete a task by ObjectId
 export async function DELETE(req: Request) {
   try {
     await dbConnect();
 
     const url = new URL(req.url);
-    const name = url.searchParams.get('name'); // Extract 'name' from query parameters
+    const taskId = url.searchParams.get('id'); // Extract 'id' from query parameters
 
-    if (!name) {
-      return NextResponse.json({ error: 'Task name is required' }, { status: 400 });
+    console.log('DELETE request task ID:', taskId); // Log the task ID
+    if (!taskId) {
+      return NextResponse.json({ error: 'Task ID is required' }, { status: 400 });
     }
 
-    const result = await Task.deleteOne({ name });
+    const result = await Task.deleteOne({ _id: taskId }); // Delete task by ObjectId
     if (result.deletedCount === 0) {
       return NextResponse.json({ error: 'Task not found' }, { status: 404 });
     }
