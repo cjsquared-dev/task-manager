@@ -1,13 +1,12 @@
 import { NextResponse } from 'next/server';
 import { dbConnect } from '../../../lib/db';
 import { Task } from '../../../lib/models/Task.model';
-import { Volunteer } from '../../../lib/models/Volunteer.model';
 
 // POST: Save a new task
 export async function POST(req: Request) {
   try {
-    const { name, volunteers } = await req.json();
-    console.log('POST request payload:', { name, volunteers }); // Log the payload
+    const { name } = await req.json();
+    console.log('POST request payload:', { name }); // Log the payload
 
     if (!name) {
       console.error('Task name is required');
@@ -16,17 +15,13 @@ export async function POST(req: Request) {
 
     await dbConnect();
 
-    // If volunteers are provided, validate their ObjectIds
-    let volunteerIds = [];
-    if (volunteers && volunteers.length > 0) {
-      const validVolunteers = await Volunteer.find({ _id: { $in: volunteers } });
-      volunteerIds = validVolunteers.map((volunteer) => volunteer._id);
-    }
-
-    // Create a new task
+    // Create a new task with 10 empty hourIndex slots
     const newTask = new Task({
       name,
-      volunteers: volunteerIds, // Add validated volunteer ObjectIds
+      hourIndex: Array.from({ length: 10 }, (_, index) => ({
+        index,
+        volunteers: [],
+      })),
     });
 
     await newTask.save();
@@ -81,55 +76,56 @@ export async function DELETE(req: Request) {
 // PATCH: Update task volunteers
 export async function PATCH(req: Request) {
   try {
-    const { taskName, hourIndex, volunteer, action } = await req.json();
-    console.log('PATCH request payload:', { taskName, hourIndex, volunteer, action }); // Log the payload
-
-    if (!taskName || hourIndex === undefined || !volunteer || !action) {
-      console.error('Invalid payload:', { taskName, hourIndex, volunteer, action });
-      return NextResponse.json({ error: 'Task name, hour index, volunteer, and action are required' }, { status: 400 });
-    }
+    const { taskId, name, hourIndex, volunteer, action } = await req.json();
+    console.log('PATCH request payload:', { taskId, name, hourIndex, volunteer, action }); // Log the payload
 
     await dbConnect();
+ 
+    if (name && taskId) {
+      // Update task name
+      const updatedTask = await Task.findByIdAndUpdate(taskId, { name }, { new: true });
+      if (!updatedTask) {
+        return NextResponse.json({ error: 'Task not found' }, { status: 404 });
+      }
+      console.log('Task name updated successfully:', updatedTask);
+      return NextResponse.json({ message: 'Task name updated successfully', task: updatedTask }, { status: 200 });
 
-    const task = await Task.findOne({ name: taskName }); // Find task by name
+    }
+
+    const task = await Task.findById(taskId); // Find task by ID
     if (!task) {
-      console.error('Task not found:', taskName);
+      console.error('Task not found:', taskId);
       return NextResponse.json({ error: 'Task not found' }, { status: 404 });
     }
 
-    if (!task.volunteers) {
-      task.volunteers = {};
+    const hourSlot = task.hourIndex.find((slot: { index: number; volunteers: string[] }) => slot.index === hourIndex);
+    if (!hourSlot) {
+      console.error('Hour slot not found:', hourIndex);
+      return NextResponse.json({ error: 'Hour slot not found' }, { status: 404 });
     }
 
-    const hourKey = `hour-${hourIndex}`;
-    console.log('Hour key:', hourKey); // Log the hour key
-    console.log('Current volunteers:', task.volunteers[hourKey]); // Log current volunteers for the hour
-    console.log('Action:', action); // Log the action
-    console.log('Volunteer:', volunteer); // Log the volunteer
-    console.log('volunteer name:', volunteer.name); // Log the volunteer name
-
+    // Check if the volunteer is already assigned to the hour slot
 
     if (action === 'add') {
-      // Add the volunteer to the specified hour
-      if (!task.volunteers[hourKey]) {
-        task.volunteers[hourKey] = [];
+      // Add the volunteer to the hour slot
+      const existingVolunteer = hourSlot.volunteers.find(
+        (v: string) => v.toString() === volunteer._id
+      );
+
+      if (!existingVolunteer) {
+        hourSlot.volunteers.push(volunteer._id); // Add the volunteer's ObjectId
       }
-      task.volunteers[hourKey].push(volunteer);
     } else if (action === 'remove') {
-      // Remove the volunteer from the specified hour
-      if (task.volunteers[hourKey]) {
-        task.volunteers[hourKey] = task.volunteers[hourKey].filter((v: { name: string }) => v.name !== volunteer.name);
-        if (task.volunteers[hourKey].length === 0) {
-          delete task.volunteers[hourKey]; // Remove the hour key if no volunteers are left
-        }
-      }
+      // Remove the volunteer from the hour slot
+      hourSlot.volunteers = hourSlot.volunteers.filter(
+        (v: string) => v.toString() !== volunteer._id
+      );
     }
 
     await task.save();
     console.log('Updated task:', task);
 
-    console.log('Volunteer assignment updated successfully:', { taskName, hourIndex, volunteer, action });
-    return NextResponse.json({ message: 'Volunteer assignment updated successfully' }, { status: 200 });
+    return NextResponse.json({ message: 'Volunteer assignment updated successfully', task }, { status: 200 });
   } catch (error) {
     console.error('Error updating volunteer assignment:', error);
     return NextResponse.json({ error: 'Failed to update volunteer assignment' }, { status: 500 });
