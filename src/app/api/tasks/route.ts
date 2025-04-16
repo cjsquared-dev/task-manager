@@ -79,6 +79,7 @@ export async function DELETE(req: Request) {
 }
 
 // PATCH: Update task name or volunteers
+// PATCH: Update task name or volunteers
 export async function PATCH(req: Request) {
   try {
     const { taskId, name, hourIndex, volunteer, action } = await req.json();
@@ -96,9 +97,9 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ message: 'Task name updated successfully', task: updatedTask }, { status: 200 });
     }
 
-    if (!taskId || hourIndex === undefined || !volunteer || !action) {
-      console.error('Invalid payload:', { taskId, hourIndex, volunteer, action });
-      return NextResponse.json({ error: 'Task ID, hour index, volunteer, and action are required' }, { status: 400 });
+    if (!taskId || !volunteer || !action) {
+      console.error('Invalid payload:', { taskId, volunteer, action });
+      return NextResponse.json({ error: 'Task ID, volunteer, and action are required' }, { status: 400 });
     }
 
     const task = await Task.findById(taskId); // Find task by ID
@@ -107,36 +108,18 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: 'Task not found' }, { status: 404 });
     }
 
-    if (!task.volunteers) {
-      task.volunteers = {};
-    }
-
-    const hourKey = `hour-${hourIndex}`;
-    console.log('Hour key:', hourKey); // Log the hour key
-    console.log('Current volunteers:', task.volunteers[hourKey]); // Log current volunteers for the hour
-    console.log('Action:', action); // Log the action
-    console.log('Volunteer:', volunteer); // Log the volunteer
-
     if (action === 'add') {
-      // Add the volunteer to the specified hour
-      if (!task.volunteers[hourKey]) {
-        task.volunteers[hourKey] = [];
-      }
-      task.volunteers[hourKey].push(volunteer);
+      // Add the volunteer to the task
+      task.volunteers.push(volunteer);
     } else if (action === 'remove') {
-      // Remove the volunteer from the specified hour
-      if (task.volunteers[hourKey]) {
-        task.volunteers[hourKey] = task.volunteers[hourKey].filter((v: { name: string }) => v.name !== volunteer.name);
-        if (task.volunteers[hourKey].length === 0) {
-          delete task.volunteers[hourKey]; // Remove the hour key if no volunteers are left
-        }
-      }
+      // Remove the volunteer from the task
+      task.volunteers = task.volunteers.filter((v: { name: string }) => v.name !== volunteer.name);
     }
 
     await task.save();
     console.log('Updated task:', task);
 
-    return NextResponse.json({ message: 'Volunteer assignment updated successfully' }, { status: 200 });
+    return NextResponse.json({ message: 'Volunteer assignment updated successfully', task }, { status: 200 });
   } catch (error) {
     console.error('Error updating task:', error);
     return NextResponse.json({ error: 'Failed to update task' }, { status: 500 });

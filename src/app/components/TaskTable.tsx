@@ -27,12 +27,12 @@ const TaskTable: React.FC<TaskTableProps> = () => {
           throw new Error('Failed to fetch tasks');
         }
         const data = await response.json();
-  
+
         if (data.length > 0) {
           setTaskNames(data.map((task: { name: string }) => task.name));
           setTaskIds(data.map((task: { _id: string }) => task._id)); // Populate taskIds with _id
           setRows(data.map(() => Array(10).fill(''))); // Create rows dynamically based on tasks
-  
+
           // Process volunteer assignments
           const assignments: { [key: string]: Volunteer[] } = {};
           data.forEach((task: { name: string; volunteers: { [key: string]: Volunteer[] } }) => {
@@ -51,19 +51,19 @@ const TaskTable: React.FC<TaskTableProps> = () => {
         console.error('Error fetching tasks:', error);
       }
     };
-  
+
     fetchTasks();
   }, []);
 
   const handleSaveTaskName = async (index: number) => {
     const taskId = taskIds[index]; // Get the task ID
     const taskName = taskNames[index]; // Get the updated task name
-  
+
     if (!taskName.trim()) {
       alert('Task name is required');
       return;
     }
-  
+
     try {
       const response = await fetch('/api/tasks', {
         method: 'PATCH',
@@ -72,23 +72,23 @@ const TaskTable: React.FC<TaskTableProps> = () => {
         },
         body: JSON.stringify({ taskId, name: taskName }), // Send taskId and updated name
       });
-  
+
       if (!response.ok) {
         const errorData = await response.json();
         console.error('Backend error:', errorData);
         throw new Error('Failed to update task name');
       }
-  
+
       const data = await response.json();
       console.log('Task name updated successfully:', data);
-  
+
       setEditedTaskIndex(null); // Exit edit mode
     } catch (error) {
       console.error('Error updating task name:', error);
     }
   };
 
-  
+
 
   const handleTaskNameChange = (index: number, value: string) => {
     const updatedTaskNames = [...taskNames];
@@ -97,43 +97,43 @@ const TaskTable: React.FC<TaskTableProps> = () => {
   };
 
   const handleDeleteTask = async (index: number) => {
-  const taskId = taskIds[index]; // Use the task ID from the taskIds array
-  console.log('Deleting task with ID:', taskId); // Log the task ID for debugging
+    const taskId = taskIds[index]; // Use the task ID from the taskIds array
+    console.log('Deleting task with ID:', taskId); // Log the task ID for debugging
 
-  if (!taskId) {
-    console.error('Task ID not found for index:', index);
-    return;
-  }
-
-  try {
-    const response = await fetch(`/api/tasks?id=${taskId}`, {
-      method: 'DELETE',
-    });
-
-    if (!response.ok) {
-      const errorData = await response.json();
-      console.error('Backend error:', errorData);
-      throw new Error('Failed to delete task');
+    if (!taskId) {
+      console.error('Task ID not found for index:', index);
+      return;
     }
 
-    // Update the frontend state
-    const updatedTaskNames = [...taskNames];
-    updatedTaskNames.splice(index, 1); // Remove the task name
-    setTaskNames(updatedTaskNames);
+    try {
+      const response = await fetch(`/api/tasks?id=${taskId}`, {
+        method: 'DELETE',
+      });
 
-    const updatedRows = [...rows];
-    updatedRows.splice(index, 1); // Remove the corresponding row
-    setRows(updatedRows);
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('Backend error:', errorData);
+        throw new Error('Failed to delete task');
+      }
 
-    const updatedTaskIds = [...taskIds];
-    updatedTaskIds.splice(index, 1); // Remove the task ID
-    setTaskIds(updatedTaskIds);
+      // Update the frontend state
+      const updatedTaskNames = [...taskNames];
+      updatedTaskNames.splice(index, 1); // Remove the task name
+      setTaskNames(updatedTaskNames);
 
-    console.log('Task deleted successfully');
-  } catch (error) {
-    console.error('Error deleting task:', error);
-  }
-};
+      const updatedRows = [...rows];
+      updatedRows.splice(index, 1); // Remove the corresponding row
+      setRows(updatedRows);
+
+      const updatedTaskIds = [...taskIds];
+      updatedTaskIds.splice(index, 1); // Remove the task ID
+      setTaskIds(updatedTaskIds);
+
+      console.log('Task deleted successfully');
+    } catch (error) {
+      console.error('Error deleting task:', error);
+    }
+  };
 
   const handleOpenModal = (rowIndex: number, cellIndex: number) => {
     setSelectedCell({ rowIndex, cellIndex });
@@ -145,18 +145,18 @@ const TaskTable: React.FC<TaskTableProps> = () => {
       const { rowIndex, cellIndex } = selectedCell;
 
       if (volunteer) {
-        const taskName = taskNames[rowIndex]; // Use the task name as the identifier
+        const taskId = taskIds[rowIndex]; // Use the task ID to identify the task
         const hourIndex = cellIndex;
 
         try {
-          console.log('Sending payload:', { taskName, hourIndex, volunteer, action: 'add' }); // Log the payload
+          console.log('Sending payload:', { taskId, hourIndex, volunteer, action: 'add' }); // Log the payload
           const response = await fetch('/api/tasks', {
             method: 'PATCH',
             headers: {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({
-              taskName,
+              taskId,
               hourIndex,
               volunteer,
               action: 'add',
@@ -168,6 +168,9 @@ const TaskTable: React.FC<TaskTableProps> = () => {
             console.error('Backend error:', errorData); // Log the backend error
             throw new Error('Failed to save volunteer assignment');
           }
+
+          const data = await response.json();
+          console.log('Volunteer added successfully:', data);
 
           // Update the local state
           const cellKey = `${rowIndex}-${cellIndex}`;
@@ -333,38 +336,38 @@ const TaskTable: React.FC<TaskTableProps> = () => {
       </div>
 
       <button
-  id="newRowBtn"
-  className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
-  onClick={async () => {
-    const newTaskName = 'New Task';
-    try {
-      const response = await fetch('/api/tasks', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name: newTaskName }),
-      });
+        id="newRowBtn"
+        className="mt-4 bg-blue-500 text-white px-4 py-2 rounded"
+        onClick={async () => {
+          const newTaskName = 'New Task';
+          try {
+            const response = await fetch('/api/tasks', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+              },
+              body: JSON.stringify({ name: newTaskName }),
+            });
 
-      if (!response.ok) {
-        throw new Error('Failed to create task');
-      }
+            if (!response.ok) {
+              throw new Error('Failed to create task');
+            }
 
-      const data = await response.json();
-      console.log('Task created successfully:', data);
+            const data = await response.json();
+            console.log('Task created successfully:', data);
 
-      // Update the frontend state
-      setTaskNames([...taskNames, newTaskName]);
-      setRows([...rows, Array(10).fill('')]);
-      setTaskIds([...taskIds, data.task._id]); // Save the task ID
-      console.log('Task IDs:', taskIds); // Log the task IDs
-    } catch (error) {
-      console.error('Error creating task:', error);
-    }
-  }}
->
-  Add New Task
-</button>
+            // Update the frontend state
+            setTaskNames([...taskNames, newTaskName]);
+            setRows([...rows, Array(10).fill('')]);
+            setTaskIds([...taskIds, data.task._id]); // Save the task ID
+            console.log('Task IDs:', taskIds); // Log the task IDs
+          } catch (error) {
+            console.error('Error creating task:', error);
+          }
+        }}
+      >
+        Add New Task
+      </button>
 
       {isModalOpen && selectedCell && (
         <VolunteerModal
