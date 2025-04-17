@@ -232,3 +232,34 @@ tr:hover {
   display: inline-block;
   margin: 0 auto;
 }
+
+
+/* Dark Mode */
+.dark body {
+  background: linear-gradient(135deg, #121212, #1e1e1e); /* Dark gradient background */
+  color: #f3f3f3; /* Light text for better readability */
+}
+
+.dark table {
+  background-color: #1e1e1e; /* Dark background for the table */
+  color: #f3f3f3; /* Light text for table content */
+}
+
+.dark th {
+  background-color: #333; /* Darker header background */
+  color: #f3f3f3; /* Light text for headers */
+}
+
+.dark td {
+  color: #f3f3f3; /* Light text for table cells */
+}
+
+.dark #toggleButton {
+  background-color: #333; /* Dark button background */
+  color: #f3f3f3; /* Light text for the button */
+}
+
+.dark #addVolunteerButton {
+  background-color: #444; /* Darker blue button background */
+  color: #f3f3f3; /* Light text for the button */
+}
