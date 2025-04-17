@@ -145,6 +145,17 @@ tr:hover {
   transform: scale(1.05); /* Slight zoom effect on hover */
 }
 
+
+#toggleButton {
+  background-color: #e5e7eb; /* Light gray */
+  color: #333; /* Dark text */
+}
+
+#addVolunteerButton {
+  background-color: #4caf50; /* Green button */
+  color: #ffffff; /* White text */
+}
+
 .overlay {
   position: fixed;
   top: 0;
@@ -260,6 +271,6 @@ tr:hover {
 }
 
 .dark #addVolunteerButton {
-  background-color: #444; /* Darker blue button background */
+  background-color: #444; /* Darker green button */
   color: #f3f3f3; /* Light text for the button */
 }
