@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { dbConnect } from '../../../lib/db';
 import { Task } from '../../../lib/models/Task.model';
+import { Volunteer } from '../../../lib/models/Volunteer.model';
 import mongoose from 'mongoose';
 
 // POST: Save a new task
@@ -40,7 +41,22 @@ export async function GET() {
   try {
     await dbConnect();
 
-    const tasks = await Task.find({}).select('name hourIndex'); // Fetch only the required fields
+    // Fetch all tasks
+    const tasks = await Task.find({}).lean(); // Use `.lean()` to get plain JavaScript objects
+
+    // Populate volunteer data for each task
+    for (const task of tasks) {
+      for (const hourSlot of task.hourIndex) {
+        // Resolve volunteer ObjectIds to their corresponding documents
+        const populatedVolunteers = await Volunteer.find({
+          _id: { $in: hourSlot.volunteers },
+        }).select('name color'); // Fetch only the name and color fields
+
+        // Replace the ObjectIds with the populated volunteer data
+        hourSlot.volunteers = populatedVolunteers;
+      }
+    }
+    console.log('Populated tasks:', tasks);
 
     return NextResponse.json(tasks, { status: 200 });
   } catch (error) {
