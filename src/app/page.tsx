@@ -87,8 +87,8 @@ const HomePage: React.FC = () => {
       {/* Hero Section */}
       <section className="hero-container flex justify-center items-center">
         <section className="h-2/5 md:w-6/12 sm:w-screen rounded-md hero-content-container flex justify-evenly items-center flex-col p-3">
-          <h1 className="text-white text-4xl text-center">Welcome to the Event Scheduler</h1>
-          <h3 className="text-white text-3xl text-center">Here to make your scheduling needs a breeze!</h3>
+          <h1 className="text-white text-4xl text-center">Welcome to the Event Task Manager</h1>
+          <h3 className="text-white text-3xl text-center">Here to make your Event Task Managing run smoothly!</h3>
         </section>
       </section>
 
