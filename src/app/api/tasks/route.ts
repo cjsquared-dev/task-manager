@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { dbConnect } from '../../../lib/db';
 import { Task } from '../../../lib/models/Task.model';
 import { Volunteer } from '../../../lib/models/Volunteer.model';
+import mongoose from 'mongoose';
 
 // POST: Save a new task
 export async function POST(req: Request) {
@@ -96,21 +97,51 @@ export async function PATCH(req: Request) {
     console.log('PATCH request payload:', { taskId, name, hourIndex, volunteer, action }); // Log the payload
 
     await dbConnect();
+ 
+    if (name && taskId) {
+      // Update task name
+      const updatedTask = await Task.findByIdAndUpdate(taskId, { name }, { new: true });
+      if (!updatedTask) {
+        return NextResponse.json({ error: 'Task not found' }, { status: 404 });
+      }
+      console.log('Task name updated successfully:', updatedTask);
+      return NextResponse.json({ message: 'Task name updated successfully', task: updatedTask }, { status: 200 });
 
-    const task = await Task.findById(taskId); // Find the task by ID
+    }
+
+    const task = await Task.findById(taskId); // Find task by ID
     if (!task) {
       console.error('Task not found:', taskId);
       return NextResponse.json({ error: 'Task not found' }, { status: 404 });
     }
 
-    const hourSlot = task.hourIndex.find((slot: { index: unknown; }) => slot.index === hourIndex);
+    const hourSlot = task.hourIndex.find((slot: { index: number; volunteers: string[] }) => slot.index === hourIndex);
     if (!hourSlot) {
       console.error('Hour slot not found:', hourIndex);
       return NextResponse.json({ error: 'Hour slot not found' }, { status: 404 });
     }
 
-    if (action === 'remove') {
-      // Query the Volunteer collection to find the ObjectId by name
+    // Check if the action is valid
+
+    if (action === 'add') {
+      // Validate and convert volunteer._id to ObjectId
+      if (!mongoose.Types.ObjectId.isValid(volunteer._id)) {
+        console.error('Invalid volunteer ID:', volunteer._id);
+        return NextResponse.json({ error: 'Invalid volunteer ID' }, { status: 400 });
+      }
+
+      const volunteerId = new mongoose.Types.ObjectId(volunteer._id);
+
+      // Add the volunteer to the hour slot
+      const existingVolunteer = hourSlot.volunteers.find(
+        (v: string) => v.toString() === volunteerId.toString()
+      );
+
+      if (!existingVolunteer) {
+        hourSlot.volunteers.push(volunteerId); // Add the volunteer's ObjectId
+      }
+    } else if (action === 'remove') {
+      // Find the volunteer's ObjectId by their name
       const volunteerDoc = await Volunteer.findOne({ name: volunteer.name }).select('_id');
       if (!volunteerDoc) {
         console.error('Volunteer not found:', volunteer.name);
@@ -122,7 +153,7 @@ export async function PATCH(req: Request) {
       // Remove the volunteer's ObjectId from the hour slot
       const initialLength = hourSlot.volunteers.length;
       hourSlot.volunteers = hourSlot.volunteers.filter(
-        (v: { toString: () => unknown; }) => v.toString() !== volunteerId.toString()
+        (v: string) => v.toString() !== volunteerId.toString()
       );
 
       if (hourSlot.volunteers.length === initialLength) {
@@ -131,10 +162,10 @@ export async function PATCH(req: Request) {
       }
     }
 
-    await task.save(); // Save the updated task to the database
-    console.log('Updated task after removing volunteer:', task);
+    await task.save();
+    console.log('Updated task:', task);
 
-    return NextResponse.json({ message: 'Volunteer removed successfully', task }, { status: 200 });
+    return NextResponse.json({ message: 'Volunteer assignment updated successfully', task }, { status: 200 });
   } catch (error) {
     console.error('Error updating volunteer assignment:', error);
     return NextResponse.json({ error: 'Failed to update volunteer assignment' }, { status: 500 });
