@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { dbConnect } from '../../../lib/db';
 import { Task } from '../../../lib/models/Task.model';
+import { Volunteer } from '../../../lib/models/Volunteer.model';
 
 // POST: Save a new task
 export async function POST(req: Request) {
@@ -39,7 +40,22 @@ export async function GET() {
   try {
     await dbConnect();
 
-    const tasks = await Task.find({});
+    // Fetch all tasks
+    const tasks = await Task.find({}).lean(); // Use `.lean()` to get plain JavaScript objects
+
+    // Populate volunteer data for each task
+    for (const task of tasks) {
+      for (const hourSlot of task.hourIndex) {
+        // Resolve volunteer ObjectIds to their corresponding documents
+        const populatedVolunteers = await Volunteer.find({
+          _id: { $in: hourSlot.volunteers },
+        }).select('name color'); // Fetch only the name and color fields
+
+        // Replace the ObjectIds with the populated volunteer data
+        hourSlot.volunteers = populatedVolunteers;
+      }
+    }
+    console.log('Populated tasks:', tasks);
 
     return NextResponse.json(tasks, { status: 200 });
   } catch (error) {
@@ -80,52 +96,45 @@ export async function PATCH(req: Request) {
     console.log('PATCH request payload:', { taskId, name, hourIndex, volunteer, action }); // Log the payload
 
     await dbConnect();
- 
-    if (name && taskId) {
-      // Update task name
-      const updatedTask = await Task.findByIdAndUpdate(taskId, { name }, { new: true });
-      if (!updatedTask) {
-        return NextResponse.json({ error: 'Task not found' }, { status: 404 });
-      }
-      console.log('Task name updated successfully:', updatedTask);
-      return NextResponse.json({ message: 'Task name updated successfully', task: updatedTask }, { status: 200 });
 
-    }
-
-    const task = await Task.findById(taskId); // Find task by ID
+    const task = await Task.findById(taskId); // Find the task by ID
     if (!task) {
       console.error('Task not found:', taskId);
       return NextResponse.json({ error: 'Task not found' }, { status: 404 });
     }
 
-    const hourSlot = task.hourIndex.find((slot: { index: number; volunteers: string[] }) => slot.index === hourIndex);
+    const hourSlot = task.hourIndex.find((slot: { index: unknown; }) => slot.index === hourIndex);
     if (!hourSlot) {
       console.error('Hour slot not found:', hourIndex);
       return NextResponse.json({ error: 'Hour slot not found' }, { status: 404 });
     }
 
-    // Check if th
-
-    if (action === 'add') {
-      // Add the volunteer to the hour slot
-      const existingVolunteer = hourSlot.volunteers.find(
-        (v: string) => v.toString() === volunteer._id
-      );
-
-      if (!existingVolunteer) {
-        hourSlot.volunteers.push(volunteer._id); // Add the volunteer's ObjectId
+    if (action === 'remove') {
+      // Query the Volunteer collection to find the ObjectId by name
+      const volunteerDoc = await Volunteer.findOne({ name: volunteer.name }).select('_id');
+      if (!volunteerDoc) {
+        console.error('Volunteer not found:', volunteer.name);
+        return NextResponse.json({ error: 'Volunteer not found' }, { status: 404 });
       }
-    } else if (action === 'remove') {
-      // Remove the volunteer from the hour slot
+
+      const volunteerId = volunteerDoc._id;
+
+      // Remove the volunteer's ObjectId from the hour slot
+      const initialLength = hourSlot.volunteers.length;
       hourSlot.volunteers = hourSlot.volunteers.filter(
-        (v: string) => v.toString() !== volunteer._id
+        (v: { toString: () => unknown; }) => v.toString() !== volunteerId.toString()
       );
+
+      if (hourSlot.volunteers.length === initialLength) {
+        console.error('Volunteer not found in hour slot:', volunteerId);
+        return NextResponse.json({ error: 'Volunteer not found in hour slot' }, { status: 404 });
+      }
     }
 
-    await task.save();
-    console.log('Updated task:', task);
+    await task.save(); // Save the updated task to the database
+    console.log('Updated task after removing volunteer:', task);
 
-    return NextResponse.json({ message: 'Volunteer assignment updated successfully', task }, { status: 200 });
+    return NextResponse.json({ message: 'Volunteer removed successfully', task }, { status: 200 });
   } catch (error) {
     console.error('Error updating volunteer assignment:', error);
     return NextResponse.json({ error: 'Failed to update volunteer assignment' }, { status: 500 });
