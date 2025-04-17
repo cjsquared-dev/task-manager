@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import TaskTable from './components/TaskTable';
 import UserModal from './components/UserModal';
-import UserTable from './components/UserTable';
+import UserTable from './components/VolunteerTable';
 
 const HomePage: React.FC = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
