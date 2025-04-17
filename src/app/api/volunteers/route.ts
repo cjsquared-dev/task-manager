@@ -31,7 +31,8 @@ export async function GET() {
   try {
     await dbConnect();
 
-    const volunteers = await Volunteer.find({});
+    // Fetch all volunteers and include only the name and color fields
+    const volunteers = await Volunteer.find({}).select('name color');
 
     return NextResponse.json(volunteers, { status: 200 });
   } catch (error) {
