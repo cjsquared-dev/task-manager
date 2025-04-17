@@ -90,6 +90,16 @@ const HomePage: React.FC = () => {
     setRows([...rows, Array(10).fill('')]);
   };
 
+  useEffect(() => {
+    // Apply the 'dark' class to the <html> element when Dark Mode is enabled
+    const rootElement = document.documentElement;
+    if (isDarkMode) {
+      rootElement.classList.add('dark');
+    } else {
+      rootElement.classList.remove('dark');
+    }
+  }, [isDarkMode]);
+
   return (
     <div className={isDarkMode ? 'dark' : ''}> {/* Apply 'dark' class if Dark Mode is enabled */}
       {/* Hero Section */}
