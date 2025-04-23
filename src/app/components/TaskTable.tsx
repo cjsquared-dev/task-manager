@@ -1,26 +1,27 @@
 import React, { useState, useEffect } from 'react';
 import VolunteerModal from './VolunteerModal';
+import { IVolunteer } from '@/lib/types/interfaces/volunteer.interface';
+import { ObjectId } from 'mongoose';
+import TaskTableSkeleton from '../ui/skeletons';
 
 interface TaskTableProps {
   rows: string[][];
   onAddRow: () => void;
 }
 
-interface Volunteer {
-  name: string;
-  color: string;
-}
 
 const TaskTable: React.FC<TaskTableProps> = () => {
   const [taskNames, setTaskNames] = useState<string[]>([]);
   const [rows, setRows] = useState<string[][]>([]);
+  const [isLoading, setIsLoading] = useState(true); // Loading state
   const [editedTaskIndex, setEditedTaskIndex] = useState<number | null>(null);
   const [selectedCell, setSelectedCell] = useState<{ rowIndex: number; cellIndex: number } | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [volunteerAssignments, setVolunteerAssignments] = useState<{ [key: string]: Volunteer[] }>({});
+  const [volunteerAssignments, setVolunteerAssignments] = useState<{ [key: string]: IVolunteer[] }>({});
 
   useEffect(() => {
     const fetchTasks = async () => {
+      setIsLoading(true); // Start loading
       try {
         const response = await fetch('/api/tasks');
         if (!response.ok) {
@@ -35,15 +36,17 @@ const TaskTable: React.FC<TaskTableProps> = () => {
           setRows(data.map(() => Array(10).fill(''))); // Create rows dynamically based on tasks
   
           // Process volunteer assignments
-          const assignments: { [key: string]: Volunteer[] } = {};
-          data.forEach((task: { _id: string; hourIndex: { index: number; volunteers: { name: string; color: string }[] }[] }) => {
+          const assignments: { [key: string]: IVolunteer[] } = {};
+          data.forEach((task: { _id: string; hourIndex: { index: number; volunteers: { _id: ObjectId; name: string; color: string }[] }[] }) => {
             task.hourIndex.forEach((hourSlot) => {
               const rowIndex = data.findIndex((t: { _id: string }) => t._id === task._id);
               const cellKey = `${rowIndex}-${hourSlot.index}`;
               assignments[cellKey] = hourSlot.volunteers.map((volunteer) => ({
-                name: volunteer.name,
+                ...volunteer, // Spread existing volunteer properties
+                _id: volunteer._id || '', // Provide a default or actual _id
                 color: volunteer.color || '#000', // Default color if not provided
-              }));
+                hourIndex: hourSlot.index, // Include hourIndex if required
+              })) as IVolunteer[]; // Cast to IVolunteer[]
             });
           });
           setVolunteerAssignments(assignments);
@@ -51,11 +54,15 @@ const TaskTable: React.FC<TaskTableProps> = () => {
         }
       } catch (error) {
         console.error('Error fetching tasks:', error);
+      } finally {
+        setIsLoading(false); // Stop loading
       }
     };
   
     fetchTasks();
   }, []);
+
+  
 
   console.log('Task names:', taskNames); // Log task names for debugging
 
@@ -143,7 +150,7 @@ const TaskTable: React.FC<TaskTableProps> = () => {
     setIsModalOpen(true);
   };
 
-  const handleSelectVolunteer = async (volunteer: Volunteer | null) => {
+  const handleSelectVolunteer = async (volunteer: IVolunteer | null) => {
     if (selectedCell) {
       const { rowIndex, cellIndex } = selectedCell;
 
@@ -242,6 +249,11 @@ const TaskTable: React.FC<TaskTableProps> = () => {
   };
 
   const [taskIds, setTaskIds] = useState<string[]>([]);
+
+  if (isLoading) {
+    return <TaskTableSkeleton />;
+  }
+
   return (
     <div id="table-container" className="mt-8">
       {/* Add a wrapper with overflow-x-auto */}

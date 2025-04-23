@@ -4,12 +4,13 @@ import React, { useState, useEffect } from 'react';
 import TaskTable from './components/TaskTable';
 import UserModal from './components/UserModal';
 import UserTable from './components/VolunteerTable';
+import { IVolunteer } from '@/lib/types/interfaces/volunteer.interface';
 
 const HomePage: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(false); // State to manage dark mode
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [rows, setRows] = useState<string[][]>([]); // State to manage table rows
-  const [volunteers, setVolunteers] = useState<{ name: string; color: string }[]>([]); // State to manage volunteers
+  const [volunteers, setVolunteers] = useState<IVolunteer[]>([]); // State to manage volunteers
 
   const handleToggleModal = () => {
     setIsModalOpen(!isModalOpen);
@@ -46,7 +47,11 @@ const HomePage: React.FC = () => {
         throw new Error('Failed to fetch volunteers');
       }
       const data = await response.json();
-      setVolunteers(data);
+      setVolunteers(data.map((volunteer: IVolunteer) => ({
+        ...volunteer,
+        name: volunteer.name || '',
+        color: volunteer.color || '',
+      })));
     } catch (error) {
       console.error('Error fetching volunteers:', error);
     }
