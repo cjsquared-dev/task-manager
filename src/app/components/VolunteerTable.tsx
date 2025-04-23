@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import { IVolunteer } from '@/lib/types/interfaces/volunteer.interface';
 import VolunteerTableSkeleton from '../ui/VolunteerTableSkeleton';
+import lightenColor from '@/lib/utils/colors'; // Import the color utility function
 
 
 interface UserTableProps {
@@ -13,6 +14,8 @@ const UserTable: React.FC<UserTableProps> = ({ volunteers, onDelete }) => {
   console.log('Volunteers:', volunteers);
 
   const [isLoading, setIsLoading] = useState(true);
+  const isDarkMode = document.body.classList.contains('dark'); // Check if dark mode is active
+
 
   useEffect(() => {
     // Simulate loading state
@@ -47,14 +50,20 @@ const UserTable: React.FC<UserTableProps> = ({ volunteers, onDelete }) => {
             });
 
             return (
-              <tr key={index}>
+              <tr key={index}
+              className={`${
+                index % 2 === 0 ? 'bg-gray-100 dark:bg-2a2a2a' : 'bg-white dark:bg-1e1e1e'
+              } hover:bg-gray-200 dark:hover:bg-444`}
+              >
                 <td className="border border-gray-300 px-2 py-1">{volunteer.name}</td>
                 <td className="border border-gray-300 px-2 py-1">
                   {/* Display the assigned color */}
                   <div
                     className="color-circle"
                     style={{
-                      backgroundColor: volunteer.color || '#ffffff', // Fallback to white if color is undefined
+                      backgroundColor: isDarkMode
+          ? lightenColor(volunteer.color, 0.5) // Adjust color for dark mode
+          : volunteer.color,
                     }}
                     title={volunteer.color || 'No color assigned'} // Tooltip to show the color code
                   ></div>

@@ -67,7 +67,7 @@ tr:hover {
 #newRowBtn {
   margin: auto;
   margin-top: 20px;
-  width: 90%; /* Adjust button width for smaller screens */
+  width: 30%; /* Adjust button width for smaller screens */
   display: block;
   padding: 0.7rem 1rem;
   background-color: #4caf50; /* Green button background */
@@ -292,6 +292,12 @@ tr:hover {
 
  #toggleButton {
   background-color: #e5e7eb; /* Light gray */
+  padding: 0% 1rem;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
   color: #333; /* Dark text */
 }
 
@@ -410,31 +416,110 @@ tr:hover {
 /* Dark Mode */
 .dark body {
   background: linear-gradient(135deg, #121212, #1e1e1e); /* Dark gradient background */
-  color: #f3f3f3; /* Light text for better readability */
+  color: #e0e0e0; /* Light text for better readability */
 }
 
 .dark table {
   background-color: #1e1e1e; /* Dark background for the table */
-  color: #f3f3f3; /* Light text for table content */
+  color: #e0e0e0; /* Light text for table content */
+  border: 1px solid #333; /* Darker border for the table */
 }
 
 .dark th {
   background-color: #333; /* Darker header background */
-  color: #f3f3f3; /* Light text for headers */
+  color: #e0e0e0; /* Light text for headers */
+  border-bottom: 2px solid #444; /* Subtle border for headers */
 }
 
 .dark td {
-  color: #f3f3f3; /* Light text for table cells */
+  background-color: #1e1e1e; /* Dark cell background */
+  color: #e0e0e0; /* Light text for table cells */
+  border: 1px solid #333; /* Darker border for cells */
+}
+
+.dark tr:nth-child(even) {
+  background-color: #2a2a2a; /* Slightly lighter dark background for alternate rows */
+}
+
+.dark tr:hover {
+  background-color: #444; /* Darker background on hover */
+  color: #ffffff; /* Ensure text is visible on hover */
+}
+
+.dark .color-circle {
+  border: 1px solid #e0e0e0; /* Light border for better visibility */
 }
 
 .dark #toggleButton {
   background-color: #333; /* Dark button background */
-  color: #f3f3f3; /* Light text for the button */
+  color: #e0e0e0; /* Light text for the button */
 }
 
 .dark #addVolunteerButton {
-  background-color: #444; /* Darker green button */
-  color: #f3f3f3; /* Light text for the button */
+  background-color: #444; /* Darker button background */
+  color: #e0e0e0; /* Light text for the button */
+}
+
+.dark #newRowBtn {
+  background-color: #444; /* Darker button background */
+  color: #e0e0e0; /* Light text for the button */
+}
+
+.dark .modal-content {
+  background-color: #1e1e1e; /* Dark modal background */
+  color: #e0e0e0; /* Light text for modal content */
+  border: 1px solid #333; /* Darker border for the modal */
+}
+
+.dark .modal-content ul li:hover {
+  background-color: #444; /* Darker background on hover */
+  transform: scale(1.02); /* Slight zoom effect on hover */
+}
+
+.dark .modal-close-button {
+  background-color: #444; /* Darker red button */
+  color: #e0e0e0; /* Light text */
+}
+
+.dark .modal-close-button:hover {
+  background-color: #d32f2f; /* Darker red on hover */
+}
+
+.dark .submit-btn {
+  background-color: #4caf50; /* Green button background */
+  color: #e0e0e0; /* Light text */
+}
+
+.dark .submit-btn:hover {
+  background-color: #388e3c; /* Darker green on hover */
+}
+
+.dark .cancel-btn {
+  background-color: #f44336; /* Red button background */
+  color: #e0e0e0; /* Light text */
+}
+
+.dark .cancel-btn:hover {
+  background-color: #d32f2f; /* Darker red on hover */
+}
+
+
+.dark tr:hover {
+  background-color: #444; /* Darker background on hover */
+  color: #ffffff; /* Ensure text is visible on hover */
+}
+
+.dark .modal-content ul li:hover {
+  background-color: #444; /* Darker background on hover */
+  transform: scale(1.02); /* Slight zoom effect on hover */
+}
+
+.dark .submit-btn:hover {
+  background-color: #388e3c; /* Darker green on hover */
+}
+
+.dark .cancel-btn:hover {
+  background-color: #d32f2f; /* Darker red on hover */
 }
 
 .loader {

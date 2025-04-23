@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { IVolunteer } from '@/lib/types/interfaces/volunteer.interface';
+import lightenColor from '@/lib/utils/colors'; // Import the color utility function
 
 
 interface VolunteerModalProps {
@@ -12,6 +13,8 @@ const VolunteerModal: React.FC<VolunteerModalProps> = ({ onClose, onSelect, excl
   const [volunteers, setVolunteers] = useState<IVolunteer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const isDarkMode = document.body.classList.contains('dark'); // Check if dark mode is active
 
   useEffect(() => {
     const fetchVolunteers = async () => {
@@ -84,7 +87,9 @@ const VolunteerModal: React.FC<VolunteerModalProps> = ({ onClose, onSelect, excl
                   marginRight: '10px',
                   width: '10px',
                   height: '10px',
-                  backgroundColor: volunteer.color,
+                  backgroundColor: isDarkMode
+                    ? lightenColor(volunteer.color, 0.5) // Lighten color in dark mode
+                    : volunteer.color,
                   borderRadius: '50%',
                 }}
               ></span>

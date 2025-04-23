@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import VolunteerModal from './VolunteerModal';
+import lightenColor from '@/lib/utils/colors'; // Import the color utility function
 import { IVolunteer } from '@/lib/types/interfaces/volunteer.interface';
 import { ObjectId } from 'mongoose';
 import TaskTableSkeleton from '../ui/TaskTableSkeleton';
@@ -18,6 +19,8 @@ const TaskTable: React.FC<TaskTableProps> = () => {
   const [selectedCell, setSelectedCell] = useState<{ rowIndex: number; cellIndex: number } | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [volunteerAssignments, setVolunteerAssignments] = useState<{ [key: string]: IVolunteer[] }>({});
+
+  const isDarkMode = document.body.classList.contains('dark'); // Check if dark mode is active
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -329,7 +332,9 @@ const TaskTable: React.FC<TaskTableProps> = () => {
                             className="flex items-center justify-between mb-1"
                           >
                             <span
-                              style={{ color: volunteer.color }} // Use the volunteer's color
+                              style={{ 
+                                color: isDarkMode ? lightenColor(volunteer.color, 0.5) : volunteer.color, // Adjust color for dark mode
+                              }} // Use the volunteer's color
                               className="font-semibold"
                             >
                               {volunteer.name}

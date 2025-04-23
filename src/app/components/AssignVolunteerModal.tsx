@@ -38,6 +38,10 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit, usedCo
     '#1C2833', // Dark Midnight Blue
   ];
 
+
+
+
+
   // Function to get a random unused color
   const getRandomColor = (): string => {
     const unusedColors = predefinedColors.filter(color => !usedColors.includes(color));
