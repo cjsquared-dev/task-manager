@@ -238,6 +238,28 @@ tr:hover {
    /* Slight zoom effect on hover */
  }
 
+ .table-delete-volunteer {
+  margin-left: 10px;
+  /* Add spacing between the delete button and the name */
+  background-color: transparent;
+  /* Optional: Transparent background */
+  border: none;
+  /* Remove border */
+  cursor: pointer;
+  /* Pointer cursor for better UX */
+  color: #f44336;
+  /* Red text color */
+  font-size: 14px;
+  /* Adjust font size */
+}
+
+.table-delete-volunteer:hover {
+  color: #d32f2f;
+  /* Darker red on hover */
+  transform: scale(1.1);
+  /* Slight zoom effect on hover */
+}
+
  #toggleButton {
   background-color: #e5e7eb; /* Light gray */
   color: #333; /* Dark text */
