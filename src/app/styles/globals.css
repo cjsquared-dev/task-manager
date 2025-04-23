@@ -176,6 +176,14 @@ tr:hover {
     margin-top: 10px; /* Add spacing above the button */
     transition: background-color 0.3s ease, transform 0.2s ease;
  }
+
+  .modal-close-button:hover {
+      background-color: #d32f2f; /* Darker red on hover */
+      transform: scale(1.05); /* Slight zoom effect */
+      color: #ffffff; /* White text */
+      border: none; /* Remove border */
+      cursor: pointer; /* Pointer cursor for better UX */
+    }
  
  
  .volunteer-name {
