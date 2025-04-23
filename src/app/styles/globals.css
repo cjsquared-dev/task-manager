@@ -9,14 +9,15 @@ body {
 }
 
 table {
-  width: 100%; /* Ensure the table takes full width on smaller screens */
+  width: 60%;
+  min-width: 800px; /* Ensure consistent minimum width */
   border-collapse: collapse;
   margin: 0 auto;
-  font-size: 14px; /* Reduce font size for smaller screens */
-  background-color: #ffffff; /* White background for the table */
-  border-radius: 8px; /* Rounded corners for the table */
-  overflow: hidden; /* Prevent content from overflowing */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  font-size: 14px; /* Ensure consistent font size */
+  background-color: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
 }
 
 th {
@@ -43,7 +44,16 @@ tr:hover {
   background-color: #d1c4e9; /* Light purple background on hover */
 }
 
-#table-container {
+.color-circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 1px solid #ccc;
+  display: inline-block;
+  margin: 0 auto;
+}
+
+#taskTable-container, #volunteerTable-container {
   background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
   display: grid;
   width: 100%;
@@ -347,7 +357,7 @@ tr:hover {
 }
 
 @media screen and (max-width: 480px) {
-  #table-container {
+  #taskTable-container, #volunteerTable-container {
     padding: 10px; /* Adjust padding for very small screens */
   }
 
@@ -386,14 +396,7 @@ tr:hover {
   animation: fadeIn 0.3s ease-out;
 }
 
-.color-circle {
-  width: 24px;
-  height: 24px;
-  border-radius: 50%;
-  border: 1px solid #ccc;
-  display: inline-block;
-  margin: 0 auto;
-}
+
 
 
 /* Dark Mode */

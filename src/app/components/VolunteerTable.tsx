@@ -1,5 +1,6 @@
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import { IVolunteer } from '@/lib/types/interfaces/volunteer.interface';
+import VolunteerTableSkeleton from '../ui/VolunteerTableSkeleton';
 
 
 interface UserTableProps {
@@ -11,10 +12,23 @@ const UserTable: React.FC<UserTableProps> = ({ volunteers, onDelete }) => {
   // Debugging: Log the volunteers array to ensure it contains valid data
   console.log('Volunteers:', volunteers);
 
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulate loading state
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 1000); // Adjust the timeout as needed
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (isLoading) {
+    return <VolunteerTableSkeleton />;
+  }
   
 
   return (
-    <div id="user-table-container" className="mt-8">
+    <div id="volunteerTable-container" className="mt-8">
       <h2 className="text-xl font-bold">Volunteer List</h2>
       <table className="w-full border-collapse border border-gray-300 mt-4">
         <thead>

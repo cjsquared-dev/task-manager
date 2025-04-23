@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import VolunteerModal from './VolunteerModal';
 import { IVolunteer } from '@/lib/types/interfaces/volunteer.interface';
 import { ObjectId } from 'mongoose';
-import TaskTableSkeleton from '../ui/skeletons';
+import TaskTableSkeleton from '../ui/TaskTableSkeleton';
 
 interface TaskTableProps {
   rows: string[][];
@@ -255,7 +255,7 @@ const TaskTable: React.FC<TaskTableProps> = () => {
   }
 
   return (
-    <div id="table-container" className="mt-8">
+    <div id="taskTable-container" className="mt-8">
       {/* Add a wrapper with overflow-x-auto */}
       <div className="overflow-x-auto">
         <table id="table" className="w-full min-w-[800px] border-collapse border border-gray-300">
