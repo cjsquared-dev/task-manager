@@ -1,12 +1,9 @@
 import React from 'react';
+import { IVolunteer } from '@/lib/types/interfaces/volunteer.interface';
 
-interface Volunteer {
-  name: string;
-  color: string; // Assuming color is a valid CSS color string
-}
 
 interface UserTableProps {
-  volunteers: Volunteer[];
+  volunteers: IVolunteer[];
   onDelete: (name: string) => void; // Add a prop for the delete handler
 }
 

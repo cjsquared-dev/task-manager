@@ -12,10 +12,30 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit, usedCo
 
   // Predefined list of 25 distinct colors
   const predefinedColors = [
-    '#FF5733', '#33FF57', '#3357FF', '#FF33A1', '#A133FF', '#33FFF5', '#F5FF33',
-    '#FF8C33', '#33FF8C', '#8C33FF', '#FF3333', '#33FF33', '#3333FF', '#FFAA33',
-    '#33FFAA', '#AA33FF', '#FF77AA', '#77FFAA', '#AAFF77', '#FFAA77', '#FF6633',
-    '#33FF66', '#6633FF', '#FF3366', '#66FF33',
+    '#8B0000', // Dark Red
+    '#006400', // Dark Green
+    '#00008B', // Dark Blue
+    '#4B0082', // Indigo
+    '#2F4F4F', // Dark Slate Gray
+    '#8B4513', // Saddle Brown
+    '#800000', // Maroon
+    '#2E8B57', // Sea Green
+    '#4682B4', // Steel Blue
+    '#5F9EA0', // Cadet Blue
+    '#6A5ACD', // Slate Blue
+    '#483D8B', // Dark Slate Blue
+    '#556B2F', // Dark Olive Green
+    '#8B008B', // Dark Magenta
+    '#9932CC', // Dark Orchid
+    '#8B0000', // Crimson
+    '#B22222', // Firebrick
+    '#A52A2A', // Brown
+    '#696969', // Dim Gray
+    '#708090', // Slate Gray
+    '#778899', // Light Slate Gray
+    '#2C3E50', // Midnight Blue
+    '#34495E', // Wet Asphalt
+    '#1C2833', // Dark Midnight Blue
   ];
 
   // Function to get a random unused color

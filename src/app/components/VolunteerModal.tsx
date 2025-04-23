@@ -1,18 +1,15 @@
 import React, { useEffect, useState } from 'react';
+import { IVolunteer } from '@/lib/types/interfaces/volunteer.interface';
 
-interface Volunteer {
-  name: string;
-  color: string;
-}
 
 interface VolunteerModalProps {
   onClose: () => void;
-  onSelect: (volunteer: Volunteer | null) => void;
+  onSelect: (volunteer: IVolunteer | null) => void;
   excludedVolunteers: string[]; // List of volunteers to exclude
 }
 
 const VolunteerModal: React.FC<VolunteerModalProps> = ({ onClose, onSelect, excludedVolunteers }) => {
-  const [volunteers, setVolunteers] = useState<Volunteer[]>([]);
+  const [volunteers, setVolunteers] = useState<IVolunteer[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
