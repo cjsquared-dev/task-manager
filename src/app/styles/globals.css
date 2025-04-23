@@ -89,19 +89,79 @@ tr:hover {
   z-index: 2;
 }
 
-.modal-hidden {
+  /* Modal Styles */
+ .modal {
+  position: fixed;
+  inset: 0;
   display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 0.4rem;
-  width: 90%; /* Adjust modal width for smaller screens */
-  padding: 1.3rem;
-  position: absolute;
-  top: 10%; /* Adjust modal position for smaller screens */
-  background-color: #ffffff; /* White background for the modal */
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  align-items: center;
+  background: rgba(0, 0, 0, 0.5);
+   /* Dark overlay */
+   z-index: 50;
+ }
+ 
+ .modal-content {
+   background: #ffffff;
+   /* White background */
+   border-radius: 8px;
+   padding: 1.5rem;
+   width: 24rem;
+   /* Fixed width */
+   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+   /* Subtle shadow */
+   animation: fadeIn 0.3s ease-out;
+   /* Fade-in animation */
+ }
+
+ .modal-content ul {
+  text-align: left;
 }
+
+.modal-content ul li {
+  cursor: pointer;
+  /* Change mouse pointer to indicate clickability */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  /* Smooth hover effect */
+}
+
+.modal-content ul li:hover {
+  background-color: #e0e0e0;
+  /* Light gray background on hover */
+  transform: scale(1.02);
+  /* Slight zoom effect on hover */
+}
+
+.modal-content ul li span {
+  transition: color 0.3s ease;
+  /* Smooth color transition */
+}
+
+.modal-content ul li:hover span {
+  color: #6a1b9a;
+  /* Highlight text color (purple) on hover */
+}
+
+.modal-content h2 {
+  font-size: 1.25rem;
+  margin-bottom: 1rem;
+   text-align: center;
+ }
+ 
+ .modal-content .input {
+   width: 100%;
+   padding: 0.5rem;
+   border: 1px solid #d1d5db;
+   border-radius: 4px;
+   margin-bottom: 1rem;
+ }
+ 
+ 
+ .volunteer-name {
+   margin-right: 10px;
+   /* Add spacing between the name and the delete button */
+ 
+ }
+
 
 .input {
   padding: 10px;
@@ -112,49 +172,106 @@ tr:hover {
   margin-bottom: 10px; /* Add spacing between inputs */
 }
 
-#submit-button,
-#cancel-button {
-  width: 100%; /* Make buttons full-width on smaller screens */
-  margin-top: 10px;
-  padding: 0.7rem 1rem;
-  font-size: 16px; /* Adjust font size */
-  border: none;
-  border-radius: 8px; /* Rounded corners */
-  cursor: pointer;
+/* Submit Button */
+.submit-btn {
+  background-color: #4caf50; /* Green background */
   font-weight: bold;
+  color: #ffffff; /* White text */
+  border: none; /* Remove border */
+  padding: 0.5rem 1rem; /* Add padding for better spacing */
+  border-radius: 4px; /* Rounded corners */
+  font-size: 14px; /* Adjust font size */
+  margin-top: 10px; /* Add spacing above the button */
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
-#submit-button {
-  background-color: #4caf50; /* Green button background */
-  color: #ffffff; /* White text */
-}
-
-#submit-button:hover {
+.submit-btn:hover {
   background-color: #388e3c; /* Darker green on hover */
-  transform: scale(1.05); /* Slight zoom effect on hover */
-}
-
-#cancel-button {
-  background-color: #f44336; /* Red button background */
+  transform: scale(1.05); /* Slight zoom effect */
   color: #ffffff; /* White text */
+  border: none; /* Remove border */
+  cursor: pointer; /* Pointer cursor for better UX */
+  
 }
 
-#cancel-button:hover {
+
+/* Cancel Button */
+.cancel-btn {
+  background-color: #f44336; /* Red background */
+  font-weight: bold;
+  color: #ffffff; /* White text */
+  border: none; /* Remove border */
+  padding: 0.5rem 1rem; /* Add padding for better spacing */
+  border-radius: 4px; /* Rounded corners */
+  font-size: 14px; /* Adjust font size */
+  margin-top: 10px; /* Add spacing above the button */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.cancel-btn:hover {
   background-color: #d32f2f; /* Darker red on hover */
-  transform: scale(1.05); /* Slight zoom effect on hover */
-}
+  transform: scale(1.05); /* Slight zoom effect */
+   color: #ffffff; /* White text */
+   border: none; /* Remove border */
+   cursor: pointer; /* Pointer cursor for better UX */
+ }
+ 
+ .assign-volunteer-btn {
+   background-color: #afb3aa;
+   /* Green button background */
+   color: #ffffff;
+   /* White text */
+   border: none;
+   /* Remove border */
+   cursor: pointer;
+   /* Pointer cursor for better UX */
+   padding: 0.5rem 1rem;
+   border-radius: 4px;
+   font-size: 14px;
+   /* Adjust font size */
+ }
+ 
+ .assign-volunteer-btn:hover {
+   background-color: #77ac85;
+   /* Darker green on hover */
+   transform: scale(1.05);
+   /* Slight zoom effect on hover */
+ }
 
-
-#toggleButton {
+ #toggleButton {
   background-color: #e5e7eb; /* Light gray */
   color: #333; /* Dark text */
 }
 
 #addVolunteerButton {
-  background-color: #4caf50; /* Green button */
-  color: #ffffff; /* White text */
+  margin: auto;
+  margin-top: 40px;
+  width: 20%;
+  /* Adjust button width for smaller screens */
+  display: block;
+  padding: 0.7rem 1rem;
+  background-color: #4caf50;
+  /* Green button background */
+  border: none;
+  border-radius: 8px;
+  /* Rounded corners */
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  /* Adjust font size */
+  color: #ffffff;
+  /* White text */
+  transition: background-color 0.3s ease, transform 0.2s ease;
 }
+
+#addVolunteerButton:hover {
+  background-color: #388e3c;
+  /* Darker green on hover */
+  transform: scale(1.05);
+  /* Slight zoom effect on hover */
+}
+
+
 
 .overlay {
   position: fixed;

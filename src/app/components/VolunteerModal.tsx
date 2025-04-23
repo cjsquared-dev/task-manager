@@ -45,11 +45,11 @@ const VolunteerModal: React.FC<VolunteerModalProps> = ({ onClose, onSelect, excl
 
   if (error) {
     return (
-      <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-        <div className="bg-white p-6 rounded-md w-96 shadow-lg">
+      <div className="modal">
+        <div className="modal-content">
           <h2 className="text-lg font-bold mb-4 text-red-500 text-center">{error}</h2>
           <button
-            className="mt-4 bg-red-500 text-white px-4 py-2 rounded w-full hover:bg-red-600"
+            className="modal-close-button mt-4 bg-red-500 text-white px-4 py-2 rounded w-full hover:bg-red-600"
             onClick={onClose}
           >
             Close
@@ -65,20 +65,20 @@ const VolunteerModal: React.FC<VolunteerModalProps> = ({ onClose, onSelect, excl
   );
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
-      <div className="bg-gradient-to-br from-purple-500 to-indigo-600 p-6 rounded-lg w-96 shadow-xl text-white animate-fade-in">
+    <div className="modal">
+      <div className="modal-content">
         <h2 className="text-2xl font-bold mb-4 text-center">Select a Volunteer</h2>
         <ul className="space-y-3">
           {availableVolunteers.map((volunteer) => (
             <li
               key={volunteer.name}
-              className="flex items-center justify-between bg-white text-black p-3 rounded-md shadow-md cursor-pointer hover:bg-gray-100"
-              onClick={() => onSelect(volunteer)}
+              className="flex items-center justify-start bg-gray-100 text-black p-3 rounded-md shadow-md cursor-pointer hover:bg-gray-200 text-align-left" onClick={() => onSelect(volunteer)}
               style={{ listStyle: 'none' }} // Remove default bullet points
             >
               {/* Custom bullet point with volunteer color */}
               <span
-                className="font-medium"
+                className="font-medium color-circle"
+
                 style={{
                   display: 'inline-block',
                   marginRight: '10px',
@@ -89,13 +89,14 @@ const VolunteerModal: React.FC<VolunteerModalProps> = ({ onClose, onSelect, excl
                 }}
               ></span>
               {/* Volunteer name with hover effect */}
-              <span className="hover:text-purple-500 transition duration-200">{volunteer.name}</span>
+              <span className="hover:text-purple-500 transition duration-200 font-semibold">
+                {volunteer.name}
+              </span>
             </li>
           ))}
         </ul>
         <button
-          className="mt-6 bg-red-500 text-white px-4 py-2 rounded w-full hover:bg-red-600 transition duration-200"
-          onClick={onClose}
+          className="modal-close-button mt-6 bg-red-500 text-white px-4 py-2 rounded w-full hover:bg-red-600 transition duration-200" onClick={onClose}
         >
           Close
         </button>

@@ -93,13 +93,13 @@ const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit, usedCo
             <div className="mt-4">
               <button
                 type="submit"
-                className="bg-green-500 text-white px-4 py-2 rounded mr-2"
+                className="submit-btn bg-green-500 text-white px-4 py-2 rounded mr-2"
               >
                 Submit
               </button>
               <button
                 type="button"
-                className="bg-red-500 text-white px-4 py-2 rounded"
+                className="cancel-btn bg-red-500 text-white px-4 py-2 rounded"
                 onClick={onClose}
               >
                 Cancel

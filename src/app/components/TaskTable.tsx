@@ -335,7 +335,7 @@ const TaskTable: React.FC<TaskTableProps> = () => {
                               {volunteer.name}
                             </span>
                             <button
-                              className="text-red-500 hover:text-red-700 ml-2"
+                              className=" table-delete-volunteer text-red-500 hover:text-red-700 ml-2"
                               onClick={() => handleRemoveVolunteer(rowIndex, cellIndex, volunteer.name)}
                             >
                               ✖
@@ -343,10 +343,10 @@ const TaskTable: React.FC<TaskTableProps> = () => {
                           </div>
                         ))}
                         <button
-                          className="mt-2 bg-gray-300 text-black px-2 py-1 rounded"
+                          className=" assign-volunteer-btn mt-2 bg-gray-300 text-black px-2 py-1 rounded"
                           onClick={() => handleOpenModal(rowIndex, cellIndex)}
                         >
-                          Add Volunteer
+                          Assign Volunteer
                         </button>
                       </div>
                     </td>
