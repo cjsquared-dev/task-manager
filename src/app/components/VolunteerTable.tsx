@@ -2,6 +2,7 @@ import React from 'react';
 import { IVolunteer } from '@/lib/types/interfaces/volunteer.interface';
 
 
+
 interface UserTableProps {
   volunteers: IVolunteer[];
   onDelete: (name: string) => void; // Add a prop for the delete handler

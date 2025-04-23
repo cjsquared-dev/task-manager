@@ -1,159 +1,298 @@
 /* General styles for mobile-first design */
 body {
-  background: linear-gradient(135deg, #f3e5f5, #e8f5e9); /* Soft gradient background */
-  color: #333; /* Darker text for better readability */
+  background: linear-gradient(135deg, #f3e5f5, #e8f5e9);
+  /* Soft gradient background */
+  color: #333;
+  /* Darker text for better readability */
   font-family: 'Arial', 'Helvetica', sans-serif;
   margin: 0;
   padding: 0;
   text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
 }
 
 table {
-  width: 100%; /* Ensure the table takes full width on smaller screens */
+  width: 100%;
+  min-width: 800px; /* Ensure consistent minimum width */
   border-collapse: collapse;
   margin: 0 auto;
-  font-size: 14px; /* Reduce font size for smaller screens */
-  background-color: #ffffff; /* White background for the table */
-  border-radius: 8px; /* Rounded corners for the table */
-  overflow: hidden; /* Prevent content from overflowing */
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  font-size: 14px; /* Ensure consistent font size */
+  background-color: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+th, td {
+  border: 1px solid #e5e7eb;
+  padding: 10px; /* Ensure consistent padding */
+  text-align: left;
+  font-size: 14px; /* Ensure consistent font size */
 }
 
 th {
-  background-color: #6a1b9a; /* Deep purple header background */
-  color: #ffffff; /* White text for headers */
-  padding: 12px; /* Add padding for better spacing */
-  text-align: center;
-  font-size: 14px;
+  background-color: #6a1b9a;
+  color: #ffffff;
   font-weight: bold;
 }
 
-td {
-  border: 1px solid #e5e7eb; /* Light gray borders */
-  padding: 10px; /* Add padding for better spacing */
-  text-align: left;
-  font-size: 14px;
-}
-
 tr:nth-child(even) {
-  background-color: #f3f4f6; /* Light gray background for alternate rows */
+  background-color: #f3f4f6;
 }
 
 tr:hover {
-  background-color: #d1c4e9; /* Light purple background on hover */
+  background-color: #d1c4e9;
 }
 
 #table-container {
-  background-color: rgba(255, 255, 255, 0.8); /* Semi-transparent white background */
+  background-color: rgba(255, 255, 255, 0.8);
+  /* Semi-transparent white background */
   display: grid;
   width: 100%;
-  overflow-x: auto; /* Allow horizontal scrolling for tables on smaller screens */
-  padding: 20px; /* Add padding for spacing */
+  overflow-x: auto;
+  /* Allow horizontal scrolling for tables on smaller screens */
+  padding: 20px;
+  /* Add padding for spacing */
   border-radius: 10px;
   margin: 20px auto;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* Subtle shadow for depth */
 }
 
 #newRowBtn {
   margin: auto;
   margin-top: 20px;
-  width: 90%; /* Adjust button width for smaller screens */
+  width: 20%;
+  /* Adjust button width for smaller screens */
   display: block;
   padding: 0.7rem 1rem;
-  background-color: #4caf50; /* Green button background */
+  background-color: #4caf50;
+  /* Green button background */
   border: none;
-  border-radius: 8px; /* Rounded corners */
+  border-radius: 8px;
+  /* Rounded corners */
   cursor: pointer;
   font-weight: bold;
-  font-size: 16px; /* Adjust font size */
-  color: #ffffff; /* White text */
+  font-size: 16px;
+  /* Adjust font size */
+  color: #ffffff;
+  /* White text */
   transition: background-color 0.3s ease, transform 0.2s ease;
 }
 
 #newRowBtn:hover {
-  background-color: #388e3c; /* Darker green on hover */
-  transform: scale(1.05); /* Slight zoom effect on hover */
+  background-color: #388e3c;
+  /* Darker green on hover */
+  transform: scale(1.05);
+  /* Slight zoom effect on hover */
+  text-align: center;
 }
 
-.modal-content-hidden {
+/* Modal Styles */
+.modal {
+  position: fixed;
+  inset: 0;
   display: flex;
-  flex-direction: column; /* Stack elements vertically on smaller screens */
-  background-color: #ffffff; /* White background for the modal */
-  margin: auto;
-  padding: 20px;
-  border: 1px solid #e5e7eb; /* Light gray border */
-  border-radius: 15px;
-  width: 90%; /* Adjust modal width for smaller screens */
-  justify-content: space-between;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-  z-index: 2;
-}
-
-.modal-hidden {
-  display: flex;
-  flex-direction: column;
+  align-items: center;
   justify-content: center;
-  gap: 0.4rem;
-  width: 90%; /* Adjust modal width for smaller screens */
-  padding: 1.3rem;
-  position: absolute;
-  top: 10%; /* Adjust modal position for smaller screens */
-  background-color: #ffffff; /* White background for the modal */
-  border-radius: 10px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  background: rgba(0, 0, 0, 0.5);
+  /* Dark overlay */
+  z-index: 50;
+}
+
+.modal-content {
+  background: #ffffff;
+  /* White background */
+  border-radius: 8px;
+  padding: 1.5rem;
+  width: 24rem;
+  /* Fixed width */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  /* Subtle shadow */
+  animation: fadeIn 0.3s ease-out;
+  /* Fade-in animation */
+
+}
+
+.modal-content ul {
+  text-align: left;
+}
+
+.modal-content h2 {
+  font-size: 1.25rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.modal-content .input {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #d1d5db;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+
+.volunteer-name {
+  margin-right: 10px;
+  /* Add spacing between the name and the delete button */
+
+}
+
+/* Submit Button */
+.submit-btn {
+  background-color: #4caf50; /* Green background */
+  font-weight: bold;
+  color: #ffffff; /* White text */
+  border: none; /* Remove border */
+  padding: 0.5rem 1rem; /* Add padding for better spacing */
+  border-radius: 4px; /* Rounded corners */
+  font-size: 14px; /* Adjust font size */
+  margin-top: 10px; /* Add spacing above the button */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.submit-btn:hover {
+  background-color: #388e3c; /* Darker green on hover */
+  transform: scale(1.05); /* Slight zoom effect */
+  color: #ffffff; /* White text */
+  border: none; /* Remove border */
+  cursor: pointer; /* Pointer cursor for better UX */
+  
+
+}
+/* Cancel Button */
+.cancel-btn {
+  background-color: #f44336; /* Red background */
+  font-weight: bold;
+  color: #ffffff; /* White text */
+  border: none; /* Remove border */
+  padding: 0.5rem 1rem; /* Add padding for better spacing */
+  border-radius: 4px; /* Rounded corners */
+  font-size: 14px; /* Adjust font size */
+  margin-top: 10px; /* Add spacing above the button */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.cancel-btn:hover {
+  background-color: #d32f2f; /* Darker red on hover */
+  transform: scale(1.05); /* Slight zoom effect */
+  color: #ffffff; /* White text */
+  border: none; /* Remove border */
+  cursor: pointer; /* Pointer cursor for better UX */
+}
+
+.assign-volunteer-btn {
+  background-color: #afb3aa;
+  /* Green button background */
+  color: #ffffff;
+  /* White text */
+  border: none;
+  /* Remove border */
+  cursor: pointer;
+  /* Pointer cursor for better UX */
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  font-size: 14px;
+  /* Adjust font size */
+}
+
+.assign-volunteer-btn:hover {
+  background-color: #77ac85;
+  /* Darker green on hover */
+  transform: scale(1.05);
+  /* Slight zoom effect on hover */
+}
+
+
+.table-delete-volunteer {
+  margin-left: 10px;
+  /* Add spacing between the delete button and the name */
+  background-color: transparent;
+  /* Optional: Transparent background */
+  border: none;
+  /* Remove border */
+  cursor: pointer;
+  /* Pointer cursor for better UX */
+  color: #f44336;
+  /* Red text color */
+  font-size: 14px;
+  /* Adjust font size */
+}
+
+.table-delete-volunteer:hover {
+  color: #d32f2f;
+  /* Darker red on hover */
+  transform: scale(1.1);
+  /* Slight zoom effect on hover */
+}
+
+
+/* Fade-in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .input {
   padding: 10px;
-  border: 1px solid #d1d5db; /* Light gray border */
+  border: 1px solid #d1d5db;
+  /* Light gray border */
   border-radius: 5px;
   font-size: 14px;
-  width: 100%; /* Full width input */
-  margin-bottom: 10px; /* Add spacing between inputs */
-}
-
-#submit-button,
-#cancel-button {
-  width: 100%; /* Make buttons full-width on smaller screens */
-  margin-top: 10px;
-  padding: 0.7rem 1rem;
-  font-size: 16px; /* Adjust font size */
-  border: none;
-  border-radius: 8px; /* Rounded corners */
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.3s ease, transform 0.2s ease;
-}
-
-#submit-button {
-  background-color: #4caf50; /* Green button background */
-  color: #ffffff; /* White text */
-}
-
-#submit-button:hover {
-  background-color: #388e3c; /* Darker green on hover */
-  transform: scale(1.05); /* Slight zoom effect on hover */
-}
-
-#cancel-button {
-  background-color: #f44336; /* Red button background */
-  color: #ffffff; /* White text */
-}
-
-#cancel-button:hover {
-  background-color: #d32f2f; /* Darker red on hover */
-  transform: scale(1.05); /* Slight zoom effect on hover */
+  width: 100%;
+  /* Full width input */
+  margin-bottom: 10px;
+  /* Add spacing between inputs */
 }
 
 
 #toggleButton {
-  background-color: #e5e7eb; /* Light gray */
-  color: #333; /* Dark text */
+  background-color: #e5e7eb;
+  /* Light gray */
+  color: #333;
+  /* Dark text */
+
 }
 
 #addVolunteerButton {
-  background-color: #4caf50; /* Green button */
-  color: #ffffff; /* White text */
+  margin: auto;
+  margin-top: 40px;
+  width: 20%;
+  /* Adjust button width for smaller screens */
+  display: block;
+  padding: 0.7rem 1rem;
+  background-color: #4caf50;
+  /* Green button background */
+  border: none;
+  border-radius: 8px;
+  /* Rounded corners */
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  /* Adjust font size */
+  color: #ffffff;
+  /* White text */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+#addVolunteerButton:hover {
+  background-color: #388e3c;
+  /* Darker green on hover */
+  transform: scale(1.05);
+  /* Slight zoom effect on hover */
 }
 
 .overlay {
@@ -164,58 +303,98 @@ tr:hover {
   right: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(0, 0, 0, 0.5); /* Dark overlay with transparency */
-  backdrop-filter: blur(5px); /* Add blur effect */
+  background: rgba(0, 0, 0, 0.5);
+  /* Dark overlay with transparency */
+  backdrop-filter: blur(5px);
+  /* Add blur effect */
   z-index: 1;
 }
 
 /* Media queries for smaller screens */
 @media screen and (max-width: 768px) {
   #table-container {
-    width: 100%; /* Full width for smaller screens */
+    width: 100%;
+    /* Full width for smaller screens */
   }
 
   table {
-    font-size: 12px; /* Smaller font size for smaller screens */
+    font-size: 12px;
+    /* Smaller font size for smaller screens */
   }
 
   th,
   td {
-    padding: 8px; /* Adjust padding for smaller screens */
+    padding: 8px;
+    /* Adjust padding for smaller screens */
   }
 
   #newRowBtn {
-    width: 100%; /* Full width for the button */
-    font-size: 14px; /* Smaller font size */
+    width: 100%;
+    /* Full width for the button */
+    font-size: 14px;
+    /* Smaller font size */
   }
 
   .modal-hidden {
-    width: 90%; /* Adjust modal width */
-    top: 15%; /* Adjust modal position */
+    width: 90%;
+    /* Adjust modal width */
+    top: 15%;
+    /* Adjust modal position */
   }
+}
+
+/* Highlight effect for volunteer names */
+.modal-content ul li {
+  cursor: pointer;
+  /* Change mouse pointer to indicate clickability */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  /* Smooth hover effect */
+}
+
+.modal-content ul li:hover {
+  background-color: #e0e0e0;
+  /* Light gray background on hover */
+  transform: scale(1.02);
+  /* Slight zoom effect on hover */
+}
+
+.modal-content ul li span {
+  transition: color 0.3s ease;
+  /* Smooth color transition */
+}
+
+.modal-content ul li:hover span {
+  color: #6a1b9a;
+  /* Highlight text color (purple) on hover */
 }
 
 @media screen and (max-width: 480px) {
   #table-container {
-    padding: 10px; /* Adjust padding for very small screens */
+    padding: 10px;
+    /* Adjust padding for very small screens */
   }
 
   table {
-    font-size: 10px; /* Smaller font size for very small screens */
+    font-size: 10px;
+    /* Smaller font size for very small screens */
   }
 
   th,
   td {
-    padding: 6px; /* Adjust padding further */
+    padding: 6px;
+    /* Adjust padding further */
   }
 
   #newRowBtn {
-    font-size: 12px; /* Smaller font size */
+    font-size: 12px;
+    /* Smaller font size */
   }
 
   .modal-hidden {
-    width: 95%; /* Adjust modal width */
-    top: 20%; /* Adjust modal position */
+    width: 95%;
+    /* Adjust modal width */
+    top: 20%;
+    /* Adjust modal position */
   }
 }
 
@@ -225,6 +404,7 @@ tr:hover {
     opacity: 0;
     transform: scale(0.95);
   }
+
   to {
     opacity: 1;
     transform: scale(1);
@@ -247,37 +427,50 @@ tr:hover {
 
 /* Dark Mode */
 .dark body {
-  background: linear-gradient(135deg, #121212, #1e1e1e); /* Dark gradient background */
-  color: #f3f3f3; /* Light text for better readability */
+  background: linear-gradient(135deg, #121212, #1e1e1e);
+  /* Dark gradient background */
+  color: #f3f3f3;
+  /* Light text for better readability */
 }
 
 .dark table {
-  background-color: #1e1e1e; /* Dark background for the table */
-  color: #f3f3f3; /* Light text for table content */
+  background-color: #1e1e1e;
+  /* Dark background for the table */
+  color: #f3f3f3;
+  /* Light text for table content */
 }
 
 .dark th {
-  background-color: #333; /* Darker header background */
-  color: #f3f3f3; /* Light text for headers */
+  background-color: #333;
+  /* Darker header background */
+  color: #f3f3f3;
+  /* Light text for headers */
 }
 
 .dark td {
-  color: #f3f3f3; /* Light text for table cells */
+  color: #f3f3f3;
+  /* Light text for table cells */
 }
 
 .dark #toggleButton {
-  background-color: #333; /* Dark button background */
-  color: #f3f3f3; /* Light text for the button */
+  background-color: #333;
+  /* Dark button background */
+  color: #f3f3f3;
+  /* Light text for the button */
 }
 
 .dark #addVolunteerButton {
-  background-color: #444; /* Darker green button */
-  color: #f3f3f3; /* Light text for the button */
+  background-color: #444;
+  /* Darker green button */
+  color: #f3f3f3;
+  /* Light text for the button */
 }
 
 .loader {
-  border: 4px solid #f3f3f3; /* Light gray */
-  border-top: 4px solid #6a1b9a; /* Purple */
+  border: 4px solid #f3f3f3;
+  /* Light gray */
+  border-top: 4px solid #6a1b9a;
+  /* Purple */
   border-radius: 50%;
   width: 40px;
   height: 40px;
@@ -288,6 +481,7 @@ tr:hover {
   0% {
     transform: rotate(0deg);
   }
+
   100% {
     transform: rotate(360deg);
   }
@@ -305,4 +499,16 @@ tr:hover {
   50% {
     opacity: 0.5;
   }
+}
+
+th, td {
+  padding: 10px; /* Match padding with rendered table */
+}
+
+.h-6 {
+  height: 24px; /* Match row height with rendered table */
+}
+
+.bg-gray-300 {
+  background-color: #e5e7eb; /* Match light gray color */
 }
