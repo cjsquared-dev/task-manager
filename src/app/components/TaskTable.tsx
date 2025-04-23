@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import VolunteerModal from './VolunteerModal';
+import lightenColor from '@/lib/utils/colors'; // Import the color utility function
 import { IVolunteer } from '@/lib/types/interfaces/volunteer.interface';
 import { ObjectId } from 'mongoose';
-import TaskTableSkeleton from '../ui/skeletons';
+import TaskTableSkeleton from '../ui/TaskTableSkeleton';
 
 interface TaskTableProps {
   rows: string[][];
@@ -18,6 +19,8 @@ const TaskTable: React.FC<TaskTableProps> = () => {
   const [selectedCell, setSelectedCell] = useState<{ rowIndex: number; cellIndex: number } | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [volunteerAssignments, setVolunteerAssignments] = useState<{ [key: string]: IVolunteer[] }>({});
+
+  const isDarkMode = document.body.classList.contains('dark'); // Check if dark mode is active
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -255,7 +258,7 @@ const TaskTable: React.FC<TaskTableProps> = () => {
   }
 
   return (
-    <div id="table-container" className="mt-8">
+    <div id="taskTable-container" className="mt-8">
       {/* Add a wrapper with overflow-x-auto */}
       <div className="overflow-x-auto">
         <table id="table" className="w-full min-w-[800px] border-collapse border border-gray-300">
@@ -329,13 +332,15 @@ const TaskTable: React.FC<TaskTableProps> = () => {
                             className="flex items-center justify-between mb-1"
                           >
                             <span
-                              style={{ color: volunteer.color }} // Use the volunteer's color
+                              style={{ 
+                                color: isDarkMode ? lightenColor(volunteer.color, 0.5) : volunteer.color, // Adjust color for dark mode
+                              }} // Use the volunteer's color
                               className="font-semibold"
                             >
                               {volunteer.name}
                             </span>
                             <button
-                              className="text-red-500 hover:text-red-700 ml-2"
+                              className=" table-delete-volunteer text-red-500 hover:text-red-700 ml-2"
                               onClick={() => handleRemoveVolunteer(rowIndex, cellIndex, volunteer.name)}
                             >
                               ✖
@@ -343,10 +348,10 @@ const TaskTable: React.FC<TaskTableProps> = () => {
                           </div>
                         ))}
                         <button
-                          className="mt-2 bg-gray-300 text-black px-2 py-1 rounded"
+                          className=" assign-volunteer-btn mt-2 bg-gray-300 text-black px-2 py-1 rounded"
                           onClick={() => handleOpenModal(rowIndex, cellIndex)}
                         >
-                          Add Volunteer
+                          Assign Volunteer
                         </button>
                       </div>
                     </td>
