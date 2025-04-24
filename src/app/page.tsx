@@ -12,6 +12,28 @@ const HomePage: React.FC = () => {
   const [rows, setRows] = useState<string[][]>([]); // State to manage table rows
   const [volunteers, setVolunteers] = useState<IVolunteer[]>([]); // State to manage volunteers
 
+
+  // Initialize dark mode from localStorage
+  useEffect(() => {
+    const savedDarkMode = localStorage.getItem('isDarkMode');
+    if (savedDarkMode === 'true') {
+      setIsDarkMode(true);
+    }
+  }, []);
+
+  // Save dark mode state to localStorage and apply the 'dark' class
+  useEffect(() => {
+    const rootElement = document.documentElement;
+    if (isDarkMode) {
+      rootElement.classList.add('dark');
+      localStorage.setItem('isDarkMode', 'true'); // Save to localStorage
+    } else {
+      rootElement.classList.remove('dark');
+      localStorage.setItem('isDarkMode', 'false'); // Save to localStorage
+    }
+  }, [isDarkMode]);
+
+
   const handleToggleModal = () => {
     setIsModalOpen(!isModalOpen);
   };
