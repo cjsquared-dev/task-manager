@@ -19,8 +19,14 @@ const TaskTable: React.FC<TaskTableProps> = () => {
   const [selectedCell, setSelectedCell] = useState<{ rowIndex: number; cellIndex: number } | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [volunteerAssignments, setVolunteerAssignments] = useState<{ [key: string]: IVolunteer[] }>({});
+  const [isDarkMode, setIsDarkMode] = useState(false); // State for dark mode
 
-  const isDarkMode = document.body.classList.contains('dark'); // Check if dark mode is active
+  useEffect(() => {
+    // Check if dark mode is active on the client side
+    if (typeof document !== 'undefined') {
+      setIsDarkMode(document.body.classList.contains('dark'));
+    }
+  }, []); // Run only once on mount
 
   useEffect(() => {
     const fetchTasks = async () => {

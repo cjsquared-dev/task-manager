@@ -420,29 +420,29 @@ tr:hover {
 }
 
 .dark table {
-  background-color: #1e1e1e; /* Dark background for the table */
+  background-color: #2a2a2a; /* Slightly lighter dark background for the table */
   color: #e0e0e0; /* Light text for table content */
-  border: 1px solid #333; /* Darker border for the table */
+  border: 1px solid #444; /* Slightly lighter border for the table */
 }
 
 .dark th {
-  background-color: #333; /* Darker header background */
+  background-color: #3a3a3a; /* Slightly lighter header background */
   color: #e0e0e0; /* Light text for headers */
-  border-bottom: 2px solid #444; /* Subtle border for headers */
+  border-bottom: 2px solid #555; /* Subtle border for headers */
 }
 
 .dark td {
-  background-color: #1e1e1e; /* Dark cell background */
+  background-color: #2e2e2e; /* Slightly lighter dark cell background */
   color: #e0e0e0; /* Light text for table cells */
-  border: 1px solid #333; /* Darker border for cells */
+  border: 1px solid #444; /* Slightly lighter border for cells */
 }
 
 .dark tr:nth-child(even) {
-  background-color: #2a2a2a; /* Slightly lighter dark background for alternate rows */
+  background-color: #353535; /* Slightly lighter dark background for alternate rows */
 }
 
 .dark tr:hover {
-  background-color: #444; /* Darker background on hover */
+  background-color: #555; /* Lighter background on hover */
   color: #ffffff; /* Ensure text is visible on hover */
 }
 

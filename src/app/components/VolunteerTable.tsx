@@ -14,8 +14,15 @@ const UserTable: React.FC<UserTableProps> = ({ volunteers, onDelete }) => {
   console.log('Volunteers:', volunteers);
 
   const [isLoading, setIsLoading] = useState(true);
-  const isDarkMode = document.body.classList.contains('dark'); // Check if dark mode is active
+  const [isDarkMode, setIsDarkMode] = useState(false); // State for dark mode
 
+
+  useEffect(() => {
+    // Check if dark mode is active on the client side
+    if (typeof document !== 'undefined') {
+      setIsDarkMode(document.body.classList.contains('dark'));
+    }
+  }, []); // Run only once on mount
 
   useEffect(() => {
     // Simulate loading state
@@ -28,6 +35,7 @@ const UserTable: React.FC<UserTableProps> = ({ volunteers, onDelete }) => {
   if (isLoading) {
     return <VolunteerTableSkeleton />;
   }
+
   
 
   return (
