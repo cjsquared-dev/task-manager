@@ -69,6 +69,7 @@ const HomePage: React.FC = () => {
         throw new Error('Failed to fetch volunteers');
       }
       const data = await response.json();
+      console.log('Fetched volunteers:', data); // Debugging: Log fetched volunteers
       setVolunteers(data.map((volunteer: IVolunteer) => ({
         ...volunteer,
         name: volunteer.name || '',
@@ -97,9 +98,7 @@ const HomePage: React.FC = () => {
       }
 
       console.log('Volunteer deleted successfully');
-      setVolunteers((prevVolunteers) =>
-        prevVolunteers.filter((volunteer) => volunteer.name !== name)
-      );
+      await fetchVolunteers();
     } catch (error) {
       console.error('Error deleting volunteer:', error);
       if (error instanceof Error) {
@@ -147,7 +146,12 @@ const HomePage: React.FC = () => {
       </button>
 
       {/* Task Table */}
-      <TaskTable rows={rows} onAddRow={handleAddRow} />
+      <TaskTable 
+      rows={rows} 
+      onAddRow={handleAddRow}
+      fetchVolunteers={fetchVolunteers}
+      volunteers={volunteers}
+      />
 
       {/* Add Volunteer Button */}
       <button

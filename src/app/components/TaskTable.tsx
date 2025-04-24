@@ -8,10 +8,12 @@ import TaskTableSkeleton from '../ui/TaskTableSkeleton';
 interface TaskTableProps {
   rows: string[][];
   onAddRow: () => void;
+  fetchVolunteers: () => Promise<void>;
+  volunteers: IVolunteer[];
 }
 
 
-const TaskTable: React.FC<TaskTableProps> = () => {
+const TaskTable: React.FC<TaskTableProps> = ({ fetchVolunteers, volunteers }) => {
   const [taskNames, setTaskNames] = useState<string[]>([]);
   const [rows, setRows] = useState<string[][]>([]);
   const [isLoading, setIsLoading] = useState(true); // Loading state
@@ -27,6 +29,29 @@ const TaskTable: React.FC<TaskTableProps> = () => {
       setIsDarkMode(document.body.classList.contains('dark'));
     }
   }, []); // Run only once on mount
+
+
+  useEffect(() => {
+    // Update volunteerAssignments when volunteers change
+    const updatedAssignments: { [key: string]: IVolunteer[] } = {};
+  
+    rows.forEach((_, rowIndex) => {
+      for (let cellIndex = 0; cellIndex < 10; cellIndex++) {
+        const cellKey = `${rowIndex}-${cellIndex}`;
+        const assignedVolunteers = volunteerAssignments[cellKey] || [];
+  
+        // Filter out volunteers that no longer exist in the updated list
+        updatedAssignments[cellKey] = assignedVolunteers.filter((volunteer) =>
+          volunteers.some((v) => v.name === volunteer.name)
+        );
+      }
+    });
+  
+    setVolunteerAssignments(updatedAssignments);
+    console.log('Updated volunteerAssignments:', updatedAssignments); // Debugging
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [volunteers, rows]); // Run whenever volunteers or rows change
+  
 
   useEffect(() => {
     const fetchTasks = async () => {
@@ -71,6 +96,7 @@ const TaskTable: React.FC<TaskTableProps> = () => {
     fetchTasks();
   }, []);
 
+  
   
 
   console.log('Task names:', taskNames); // Log task names for debugging
@@ -246,6 +272,8 @@ const TaskTable: React.FC<TaskTableProps> = () => {
       });
 
       console.log('Volunteer removed successfully:', volunteerName);
+
+      await fetchVolunteers();
     } catch (error) {
       console.error('Error removing volunteer assignment:', error);
     }
@@ -258,10 +286,15 @@ const TaskTable: React.FC<TaskTableProps> = () => {
   };
 
   const [taskIds, setTaskIds] = useState<string[]>([]);
+  
+
+  
 
   if (isLoading) {
     return <TaskTableSkeleton />;
   }
+
+  
 
   return (
     <div id="taskTable-container" className="mt-8">
