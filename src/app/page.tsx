@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import TaskTable from './components/TaskTable';
-import UserModal from './components/AssignVolunteerModal';
+import UserModal from './components/AddVolunteerModal';
 import UserTable from './components/VolunteerTable';
 import { IVolunteer } from '@/lib/types/interfaces/volunteer.interface';
 

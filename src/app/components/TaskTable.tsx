@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import VolunteerModal from './VolunteerModal';
+import VolunteerModal from './AssignVolunteerModal';
 import lightenColor from '@/lib/utils/colors'; // Import the color utility function
 import { IVolunteer } from '@/lib/types/interfaces/volunteer.interface';
 // import { ObjectId } from 'mongoose';
