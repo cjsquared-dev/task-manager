@@ -105,3 +105,45 @@ export const removeVolunteer = async (
 
   return response.json();
 };
+
+export const addHour = async (taskIds: string[], hourIndex: number) => {
+  for (const taskId of taskIds) {
+    const response = await fetch('/api/tasks', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        taskId,
+        action: 'addHour',
+        hourIndex,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to add hour to the database');
+    }
+  }
+};
+
+export const removeHour = async (taskIds: string[], hourIndex: number) => {
+  for (const taskId of taskIds) {
+    const response = await fetch('/api/tasks', {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        taskId,
+        action: 'removeHour',
+        hourIndex,
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Failed to remove hour from the database');
+    }
+  }
+};
