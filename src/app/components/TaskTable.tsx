@@ -159,9 +159,9 @@ const TaskTable: React.FC<TaskTableProps> = ({ fetchVolunteers, volunteers }) =>
   };
 
   const handleAddTask = () => {
-    // Add a new empty row and set it to edit mode
+    // Add a new empty row with the same number of columns as the current header row
     setTaskNames((prev) => [...prev, '']);
-    setRows((prev) => [...prev, Array(10).fill('')]);
+    setRows((prev) => [...prev, Array(hours.length).fill('')]); // Match the number of hours in the header row
     setEditedTaskIndex(taskNames.length); // Set the new task to edit mode
   };
 
