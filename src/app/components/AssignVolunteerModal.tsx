@@ -1,119 +1,104 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { IVolunteer } from '@/lib/types/interfaces/volunteer.interface';
+import { fetchVolunteers } from '@/lib/actions/volunteer.actions';
+import lightenColor from '@/lib/utils/colors';
 
-interface UserModalProps {
-  isOpen: boolean;
+interface VolunteerModalProps {
   onClose: () => void;
-  onSubmit: (user: { name: string; color: string }) => void; // Updated to include color
-  usedColors: string[]; // List of already used colors
+  onSelect: (volunteer: IVolunteer | null) => void;
+  excludedVolunteers: string[]; // List of volunteers to exclude
 }
 
-const UserModal: React.FC<UserModalProps> = ({ isOpen, onClose, onSubmit, usedColors }) => {
-  const [name, setName] = useState('');
+const VolunteerModal: React.FC<VolunteerModalProps> = ({ onClose, onSelect, excludedVolunteers }) => {
+  const [volunteers, setVolunteers] = useState<IVolunteer[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Predefined list of 25 distinct colors
-  const predefinedColors = [
-    '#8B0000', // Dark Red
-    '#006400', // Dark Green
-    '#00008B', // Dark Blue
-    '#4B0082', // Indigo
-    '#2F4F4F', // Dark Slate Gray
-    '#8B4513', // Saddle Brown
-    '#800000', // Maroon
-    '#2E8B57', // Sea Green
-    '#4682B4', // Steel Blue
-    '#5F9EA0', // Cadet Blue
-    '#6A5ACD', // Slate Blue
-    '#483D8B', // Dark Slate Blue
-    '#556B2F', // Dark Olive Green
-    '#8B008B', // Dark Magenta
-    '#9932CC', // Dark Orchid
-    '#8B0000', // Crimson
-    '#B22222', // Firebrick
-    '#A52A2A', // Brown
-    '#696969', // Dim Gray
-    '#708090', // Slate Gray
-    '#778899', // Light Slate Gray
-    '#2C3E50', // Midnight Blue
-    '#34495E', // Wet Asphalt
-    '#1C2833', // Dark Midnight Blue
-  ];
-
-
-
-
-
-  // Function to get a random unused color
-  const getRandomColor = (): string => {
-    const unusedColors = predefinedColors.filter(color => !usedColors.includes(color));
-    return unusedColors[Math.floor(Math.random() * unusedColors.length)] || '#000000'; // Default to black if no colors are left
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-
-    const randomColor = getRandomColor();
-
-    try {
-      const response = await fetch('/api/volunteers', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ name, color: randomColor }),
-      });
-
-      if (!response.ok) {
-        throw new Error('Failed to save volunteer');
+  useEffect(() => {
+    const loadVolunteers = async () => {
+      try {
+        const data = await fetchVolunteers(); // Use the action
+        setVolunteers(data);
+      } catch (err) {
+        setError('Failed to load volunteers. Please try again.');
+        console.error(err);
+      } finally {
+        setLoading(false);
       }
+    };
 
-      // Trigger the parent component's refresh logic
-      onSubmit({ name, color: randomColor });
-      setName('');
-      onClose();
-    } catch (error) {
-      console.error('Error saving volunteer:', error);
-      alert('Failed to save volunteer. Please try again.');
-    }
-  };
+    loadVolunteers();
+  }, []);
 
-  if (!isOpen) return null;
+  if (loading) {
+    return (
+      <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+        <div className="bg-white p-6 rounded-md w-96 shadow-lg">
+          <h2 className="text-lg font-bold mb-4 text-center">Loading Volunteers...</h2>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="modal">
+        <div className="modal-content">
+          <h2 className="text-lg font-bold mb-4 text-red-500 text-center">{error}</h2>
+          <button
+            className="modal-close-button mt-4 bg-red-500 text-white px-4 py-2 rounded w-full hover:bg-red-600"
+            onClick={onClose}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Filter out excluded volunteers
+  const availableVolunteers = volunteers.filter(
+    (volunteer) => !excludedVolunteers.includes(volunteer.name)
+  );
 
   return (
-    <section id="modal" className="overlay modal fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <section className="modal-content w-4/5 bg-gray-600 p-6 rounded-md text-white">
-        <section>
-          <p className="pb-1 text-lg font-bold">Volunteer Info</p>
-          <form className="w-96" onSubmit={handleSubmit}>
-            <label htmlFor="name" className="block font-medium">Name:</label>
-            <input
-              type="text"
-              className="input w-full p-2 border border-gray-300 rounded mb-4"
-              id="name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-
-            <div className="mt-4">
-              <button
-                type="submit"
-                className="submit-btn bg-green-500 text-white px-4 py-2 rounded mr-2"
-              >
-                Submit
-              </button>
-              <button
-                type="button"
-                className="cancel-btn bg-red-500 text-white px-4 py-2 rounded"
-                onClick={onClose}
-              >
-                Cancel
-              </button>
-            </div>
-          </form>
-        </section>
-      </section>
-    </section>
+    <div className="modal">
+      <div className="modal-content">
+        <h2 className="text-2xl font-bold mb-4 text-center">Select a Volunteer</h2>
+        <ul className="space-y-3">
+          {availableVolunteers.map((volunteer) => (
+            <li
+              key={volunteer.name}
+              className="flex items-center justify-start bg-gray-100 text-black p-3 rounded-md shadow-md cursor-pointer hover:bg-gray-200 text-align-left"
+              onClick={() => onSelect(volunteer)}
+              style={{ listStyle: 'none' }}
+            >
+              <span
+                className="font-medium color-circle"
+                style={{
+                  display: 'inline-block',
+                  marginRight: '10px',
+                  width: '10px',
+                  height: '10px',
+                  backgroundColor: lightenColor(volunteer.color, 0.5),
+                  borderRadius: '50%',
+                }}
+              ></span>
+              <span className="hover:text-purple-500 transition duration-200 font-semibold">
+                {volunteer.name}
+              </span>
+            </li>
+          ))}
+        </ul>
+        <button
+          className="modal-close-button mt-6 bg-red-500 text-white px-4 py-2 rounded w-full hover:bg-red-600 transition duration-200"
+          onClick={onClose}
+        >
+          Close
+        </button>
+      </div>
+    </div>
   );
 };
 
-export default UserModal;
+export default VolunteerModal;
