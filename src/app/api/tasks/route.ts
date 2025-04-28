@@ -90,14 +90,14 @@ export async function DELETE(req: Request) {
   }
 }
 
-// PATCH: Update task volunteers
+// PATCH: Update task volunteers or add/remove hours
 export async function PATCH(req: Request) {
   try {
     const { taskId, name, hourIndex, volunteer, action } = await req.json();
     console.log('PATCH request payload:', { taskId, name, hourIndex, volunteer, action }); // Log the payload
 
     await dbConnect();
- 
+
     if (name && taskId) {
       // Update task name
       const updatedTask = await Task.findByIdAndUpdate(taskId, { name }, { new: true });
@@ -106,7 +106,6 @@ export async function PATCH(req: Request) {
       }
       console.log('Task name updated successfully:', updatedTask);
       return NextResponse.json({ message: 'Task name updated successfully', task: updatedTask }, { status: 200 });
-
     }
 
     const task = await Task.findById(taskId); // Find task by ID
@@ -115,59 +114,74 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: 'Task not found' }, { status: 404 });
     }
 
-    const hourSlot = task.hourIndex.find((slot: { index: number; volunteers: string[] }) => slot.index === hourIndex);
-    if (!hourSlot) {
-      console.error('Hour slot not found:', hourIndex);
-      return NextResponse.json({ error: 'Hour slot not found' }, { status: 404 });
+    if (action === 'removeHour') {
+      // Remove the hour index from the hourIndex array
+      task.hourIndex = task.hourIndex.filter((slot: { index: number }) => slot.index !== hourIndex);
+      await task.save();
+      console.log(`Hour ${hourIndex} removed from task ${taskId}`);
+      return NextResponse.json({ message: 'Hour removed successfully', task }, { status: 200 });
+    } else if (action === 'addHour') {
+      const existingHour = task.hourIndex.find((slot: { index: number }) => slot.index === hourIndex);
+      if (!existingHour) {
+        task.hourIndex.push({ index: hourIndex, volunteers: [] });
+        await task.save();
+        console.log(`Hour ${hourIndex} added to task ${taskId}`);
+        return NextResponse.json({ message: 'Hour added successfully', task }, { status: 200 });
+      }
+    } else if (action === 'add' || action === 'remove') {
+      const hourSlot = task.hourIndex.find((slot: { index: number; volunteers: string[] }) => slot.index === hourIndex);
+      if (!hourSlot) {
+        console.error('Hour slot not found:', hourIndex);
+        return NextResponse.json({ error: 'Hour slot not found' }, { status: 404 });
+      }
+
+      if (action === 'add') {
+        // Validate and convert volunteer._id to ObjectId
+        if (!mongoose.Types.ObjectId.isValid(volunteer._id)) {
+          console.error('Invalid volunteer ID:', volunteer._id);
+          return NextResponse.json({ error: 'Invalid volunteer ID' }, { status: 400 });
+        }
+
+        const volunteerId = new mongoose.Types.ObjectId(volunteer._id);
+
+        // Add the volunteer to the hour slot
+        const existingVolunteer = hourSlot.volunteers.find(
+          (v: string) => v.toString() === volunteerId.toString()
+        );
+
+        if (!existingVolunteer) {
+          hourSlot.volunteers.push(volunteerId); // Add the volunteer's ObjectId
+        }
+      } else if (action === 'remove') {
+        // Find the volunteer's ObjectId by their name
+        const volunteerDoc = await Volunteer.findOne({ name: volunteer.name }).select('_id');
+        if (!volunteerDoc) {
+          console.error('Volunteer not found:', volunteer.name);
+          return NextResponse.json({ error: 'Volunteer not found' }, { status: 404 });
+        }
+
+        const volunteerId = volunteerDoc._id;
+
+        // Remove the volunteer's ObjectId from the hour slot
+        const initialLength = hourSlot.volunteers.length;
+        hourSlot.volunteers = hourSlot.volunteers.filter(
+          (v: string) => v.toString() !== volunteerId.toString()
+        );
+
+        if (hourSlot.volunteers.length === initialLength) {
+          console.error('Volunteer not found in hour slot:', volunteerId);
+          return NextResponse.json({ error: 'Volunteer not found in hour slot' }, { status: 404 });
+        }
+      }
+
+      await task.save();
+      console.log('Updated task:', task);
+      return NextResponse.json({ message: 'Volunteer assignment updated successfully', task }, { status: 200 });
     }
 
-    // Check if the action is valid
-
-    if (action === 'add') {
-      // Validate and convert volunteer._id to ObjectId
-      if (!mongoose.Types.ObjectId.isValid(volunteer._id)) {
-        console.error('Invalid volunteer ID:', volunteer._id);
-        return NextResponse.json({ error: 'Invalid volunteer ID' }, { status: 400 });
-      }
-
-      const volunteerId = new mongoose.Types.ObjectId(volunteer._id);
-
-      // Add the volunteer to the hour slot
-      const existingVolunteer = hourSlot.volunteers.find(
-        (v: string) => v.toString() === volunteerId.toString()
-      );
-
-      if (!existingVolunteer) {
-        hourSlot.volunteers.push(volunteerId); // Add the volunteer's ObjectId
-      }
-    } else if (action === 'remove') {
-      // Find the volunteer's ObjectId by their name
-      const volunteerDoc = await Volunteer.findOne({ name: volunteer.name }).select('_id');
-      if (!volunteerDoc) {
-        console.error('Volunteer not found:', volunteer.name);
-        return NextResponse.json({ error: 'Volunteer not found' }, { status: 404 });
-      }
-
-      const volunteerId = volunteerDoc._id;
-
-      // Remove the volunteer's ObjectId from the hour slot
-      const initialLength = hourSlot.volunteers.length;
-      hourSlot.volunteers = hourSlot.volunteers.filter(
-        (v: string) => v.toString() !== volunteerId.toString()
-      );
-
-      if (hourSlot.volunteers.length === initialLength) {
-        console.error('Volunteer not found in hour slot:', volunteerId);
-        return NextResponse.json({ error: 'Volunteer not found in hour slot' }, { status: 404 });
-      }
-    }
-
-    await task.save();
-    console.log('Updated task:', task);
-
-    return NextResponse.json({ message: 'Volunteer assignment updated successfully', task }, { status: 200 });
+    return NextResponse.json({ error: 'Invalid action' }, { status: 400 });
   } catch (error) {
-    console.error('Error updating volunteer assignment:', error);
-    return NextResponse.json({ error: 'Failed to update volunteer assignment' }, { status: 500 });
+    console.error('Error updating task:', error);
+    return NextResponse.json({ error: 'Failed to update task' }, { status: 500 });
   }
 }
