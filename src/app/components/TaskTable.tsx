@@ -30,8 +30,7 @@ const TaskTable: React.FC<TaskTableProps> = ({ fetchVolunteers, volunteers }) =>
   const [volunteerAssignments, setVolunteerAssignments] = useState<{ [key: string]: IVolunteer[] }>({});
   const [isDarkMode, setIsDarkMode] = useState(false); // State for dark mode
   const inputRef = useRef<HTMLInputElement>(null); // Ref for focusing the input field
-  const [hours, setHours] = useState<number[]>([8, 9, 10, 11, 12, 13, 14, 15, 16, 17]); // Initial hours
-
+  const [hours, setHours] = useState<number[]>(Array.from({ length: 10 }, (_, i) => 8 + i)); // Default: 8 AM to 5 PM
   
 
 
@@ -70,10 +69,11 @@ const TaskTable: React.FC<TaskTableProps> = ({ fetchVolunteers, volunteers }) =>
         const data = await fetchTasks();
         console.log('Fetched tasks:', data); // Debugging: Log fetched tasks
   
-        const allHourIndices: number[] = data.flatMap((task: { hourIndex: { index: number }[] }) =>
-          task.hourIndex.map((hour) => hour.index)
-        );
-        console.log('Extracted hour indices:', allHourIndices); // Debugging: Log extracted hour indices
+     // Offset hour indices to start at 8 AM
+     const allHourIndices: number[] = data.flatMap((task: { hourIndex: { index: number }[] }) =>
+      task.hourIndex.map((hour) => hour.index + 8) // Offset by 8
+    );
+    console.log('Extracted hour indices (offset by 8):', allHourIndices); // Debugging
   
         const uniqueSortedHours = Array.from(new Set(allHourIndices)).sort((a, b) => a - b);
         console.log('Unique sorted hours:', uniqueSortedHours); // Debugging: Log unique sorted hours
@@ -251,6 +251,53 @@ const handleAddHour = async () => {
 
   }
 
+  const handleRemoveHour = async (hourIndex: number) => {
+    const hourToRemove = hours[hourIndex];
+  
+    // Update the hours state
+    setHours((prev) => prev.filter((_, index) => index !== hourIndex));
+  
+    // Update the rows state to remove the corresponding column
+    setRows((prevRows) => prevRows.map((row) => row.filter((_, index) => index !== hourIndex)));
+  
+    // Update the volunteerAssignments state
+    setVolunteerAssignments((prevAssignments) => {
+      const updatedAssignments = { ...prevAssignments };
+      Object.keys(updatedAssignments).forEach((key) => {
+        if (key.endsWith(`-${hourIndex}`)) {
+          delete updatedAssignments[key];
+        }
+      });
+      return updatedAssignments;
+    });
+  
+    // Update the database to remove the hour
+    try {
+      for (const taskId of taskIds) {
+        const response = await fetch('/api/tasks', {
+          method: 'PATCH',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            taskId,
+            action: 'removeHour',
+            hourIndex: hourToRemove - 8, // Adjust for the database offset
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || 'Failed to remove hour from the database');
+        }
+      }
+      console.log(`Hour ${hourToRemove} removed successfully from the database`);
+    } catch (error) {
+      console.error('Error removing hour from the database:', error);
+    }
+  };
+  
+
   const formatHour = (hour: number): string => {
     const formattedHour = hour > 12 ? hour - 12 : hour;
     const period = hour >= 12 ? 'PM' : 'AM';
@@ -278,6 +325,13 @@ const handleAddHour = async () => {
               {hours.map((hour, index) => (
                 <th key={index} className="border border-gray-300">
                   {formatHour(hour)}
+                <br />
+                  <button
+          className="absolute top-6 right-1 bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 transition duration-200"
+          onClick={() => handleRemoveHour(index)}
+        >
+          ✖
+        </button>
                   </th>
                 ))}
                 {/* Add New Hour Button in the Header */}

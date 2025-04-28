@@ -90,7 +90,7 @@ export async function DELETE(req: Request) {
   }
 }
 
-// PATCH: Update task volunteers or add a new hour
+// PATCH: Update task volunteers or add/remove hours
 export async function PATCH(req: Request) {
   try {
     const { taskId, name, hourIndex, volunteer, action } = await req.json();
@@ -114,21 +114,21 @@ export async function PATCH(req: Request) {
       return NextResponse.json({ error: 'Task not found' }, { status: 404 });
     }
 
-    if (action === 'addHour') {
-      // Add a new hour index to the hourIndex array
-      const existingHour = task.hourIndex.find((slot: { index: number }) => slot.index === hourIndex);
-      if (existingHour) {
-        console.error('Hour index already exists:', hourIndex);
-        return NextResponse.json({ error: 'Hour index already exists' }, { status: 400 });
-      }
-
-      task.hourIndex.push({ index: hourIndex, volunteers: [] }); // Add the new hour index
+    if (action === 'removeHour') {
+      // Remove the hour index from the hourIndex array
+      task.hourIndex = task.hourIndex.filter((slot: { index: number }) => slot.index !== hourIndex);
       await task.save();
-      console.log('Hour index added successfully:', task);
-      return NextResponse.json({ message: 'Hour index added successfully', task }, { status: 200 });
-    }
-
-    if (action === 'add' || action === 'remove') {
+      console.log(`Hour ${hourIndex} removed from task ${taskId}`);
+      return NextResponse.json({ message: 'Hour removed successfully', task }, { status: 200 });
+    } else if (action === 'addHour') {
+      const existingHour = task.hourIndex.find((slot: { index: number }) => slot.index === hourIndex);
+      if (!existingHour) {
+        task.hourIndex.push({ index: hourIndex, volunteers: [] });
+        await task.save();
+        console.log(`Hour ${hourIndex} added to task ${taskId}`);
+        return NextResponse.json({ message: 'Hour added successfully', task }, { status: 200 });
+      }
+    } else if (action === 'add' || action === 'remove') {
       const hourSlot = task.hourIndex.find((slot: { index: number; volunteers: string[] }) => slot.index === hourIndex);
       if (!hourSlot) {
         console.error('Hour slot not found:', hourIndex);
