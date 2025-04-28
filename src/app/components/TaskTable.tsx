@@ -306,7 +306,7 @@ const TaskTable: React.FC<TaskTableProps> = ({ fetchVolunteers, volunteers }) =>
               <th className="border border-gray-300 text-center">
                 <button
                   id="addHourBtn"
-                  className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition duration-200"
+                  className="submit-btn"
                   onClick={handleAddHour}
                 >
                   + Add Hour
