@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import VolunteerModal from './AssignVolunteerModal';
 import lightenColor from '@/lib/utils/colors'; // Import the color utility function
 import { IVolunteer } from '@/lib/types/interfaces/volunteer.interface';
@@ -6,7 +6,6 @@ import { IVolunteer } from '@/lib/types/interfaces/volunteer.interface';
 import TaskTableSkeleton from '../ui/TaskTableSkeleton';
 import {
   fetchTasks,
-  updateTaskName,
   deleteTask,
   createTask,
   assignVolunteer,
@@ -30,6 +29,8 @@ const TaskTable: React.FC<TaskTableProps> = ({ fetchVolunteers, volunteers }) =>
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [volunteerAssignments, setVolunteerAssignments] = useState<{ [key: string]: IVolunteer[] }>({});
   const [isDarkMode, setIsDarkMode] = useState(false); // State for dark mode
+  const inputRef = useRef<HTMLInputElement>(null); // Ref for focusing the input field
+
 
   useEffect(() => {
     // Check if dark mode is active on the client side
@@ -89,25 +90,35 @@ const TaskTable: React.FC<TaskTableProps> = ({ fetchVolunteers, volunteers }) =>
   }, []);
 
   
-  
+  useEffect(() => {
+    // Focus the input field when a new task is added
+    if (editedTaskIndex !== null && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [editedTaskIndex]);
 
   console.log('Task names:', taskNames); // Log task names for debugging
 
 
   const handleSaveTaskName = async (index: number) => {
-    const taskId = taskIds[index];
     const taskName = taskNames[index];
     if (!taskName.trim()) {
       alert('Task name is required');
       return;
     }
     try {
-      await updateTaskName(taskId, taskName);
-      setEditedTaskIndex(null);
+      const data = await createTask(taskName); // Save the task to the database
+      setTaskIds((prev) => {
+        const updatedTaskIds = [...prev];
+        updatedTaskIds[index] = data.task._id; // Update the task ID after saving
+        return updatedTaskIds;
+      });
+      setEditedTaskIndex(null); // Exit edit mode
     } catch (error) {
-      console.error('Error updating task name:', error);
+      console.error('Error saving task name:', error);
     }
   };
+
 
   const handleTaskNameChange = (index: number, value: string) => {
     const updatedTaskNames = [...taskNames];
@@ -132,16 +143,11 @@ const TaskTable: React.FC<TaskTableProps> = ({ fetchVolunteers, volunteers }) =>
     setIsModalOpen(true);
   };
 
-  const handleAddTask = async () => {
-    const newTaskName = 'New Task';
-    try {
-      const data = await createTask(newTaskName);
-      setTaskNames((prev) => [...prev, newTaskName]);
-      setRows((prev) => [...prev, Array(10).fill('')]);
-      setTaskIds((prev) => [...prev, data.task._id]);
-    } catch (error) {
-      console.error('Error creating task:', error);
-    }
+  const handleAddTask = () => {
+    // Add a new empty row and set it to edit mode
+    setTaskNames((prev) => [...prev, '']);
+    setRows((prev) => [...prev, Array(10).fill('')]);
+    setEditedTaskIndex(taskNames.length); // Set the new task to edit mode
   };
 
   const handleSelectVolunteer = async (volunteer: IVolunteer | null) => {
@@ -226,6 +232,7 @@ const TaskTable: React.FC<TaskTableProps> = ({ fetchVolunteers, volunteers }) =>
                       className="w-full p-2 border border-gray-300 rounded"
                       value={taskNames[rowIndex] || ''}
                       onChange={(e) => handleTaskNameChange(rowIndex, e.target.value)}
+                      ref={editedTaskIndex === rowIndex ? inputRef : null} // Attach ref to the input field
                     />
                   ) : (
                     taskNames[rowIndex]
@@ -234,7 +241,7 @@ const TaskTable: React.FC<TaskTableProps> = ({ fetchVolunteers, volunteers }) =>
                 <td className="border border-gray-300 text-center">
                   {editedTaskIndex === rowIndex ? (
                     <button
-                      className="mt-2 bg-green-500 text-white px-4 py-2 rounded"
+                      className="submit-btn bg-green-500 text-white px-4 py-2 rounded"
                       onClick={() => handleSaveTaskName(rowIndex)}
                     >
                       Save
@@ -242,13 +249,13 @@ const TaskTable: React.FC<TaskTableProps> = ({ fetchVolunteers, volunteers }) =>
                   ) : (
                     <>
                       <button
-                        className="mt-2 bg-blue-500 text-white px-4 py-2 rounded mr-2"
+                        className="edit-btn bg-blue-500 text-white px-4 py-2 rounded mr-2 hover:bg-blue-600 transition duration-200"
                         onClick={() => setEditedTaskIndex(rowIndex)}
                       >
                         Edit
                       </button>
                       <button
-                        className="mt-2 bg-red-500 text-white px-4 py-2 rounded"
+                        className="cancel-btn bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition duration-200"
                         onClick={() => handleDeleteTask(rowIndex)}
                       >
                         Delete

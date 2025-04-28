@@ -85,6 +85,42 @@ tr:hover {
   transform: scale(1.05); /* Slight zoom effect on hover */
 }
 
+/* Edit Button */
+.edit-btn {
+  background-color: #2196f3; /* Blue background */
+  font-weight: bold;
+  color: #ffffff; /* White text */
+  border: none; /* Remove border */
+  padding: 0.5rem 1rem; /* Add padding for better spacing */
+  border-radius: 4px; /* Rounded corners */
+  font-size: 14px; /* Adjust font size */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.edit-btn:hover {
+  background-color: #1976d2; /* Darker blue on hover */
+  transform: scale(1.05); /* Slight zoom effect */
+  cursor: pointer; /* Pointer cursor for better UX */
+}
+
+/* Delete Button */
+.cancel-btn {
+  background-color: #f44336; /* Red background */
+  font-weight: bold;
+  color: #ffffff; /* White text */
+  border: none; /* Remove border */
+  padding: 0.5rem 1rem; /* Add padding for better spacing */
+  border-radius: 4px; /* Rounded corners */
+  font-size: 14px; /* Adjust font size */
+  transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+.cancel-btn:hover {
+  background-color: #d32f2f; /* Darker red on hover */
+  transform: scale(1.05); /* Slight zoom effect */
+  cursor: pointer; /* Pointer cursor for better UX */
+}
+
 .modal-content-hidden {
   display: flex;
   flex-direction: column; /* Stack elements vertically on smaller screens */
