@@ -1,22 +1,35 @@
+// This function handles POST requests to save a new volunteer
 import { NextResponse } from 'next/server';
 import { dbConnect } from '../../../lib/db';
 import { Volunteer } from '../../../lib/models/Volunteer.model';
 import sanitize from 'mongo-sanitize';
+import Joi from 'joi'; // Validation library
+
+// Define a schema for validation
+const volunteerSchema = Joi.object({
+  name: Joi.string().min(1).max(50).required(), // Name must be 1-50 characters
+  color: Joi.string().pattern(/^#[0-9A-Fa-f]{6}$/).required(), // Color must be a valid hex code
+});
 
 // This function handles POST requests to save a new volunteer
 export async function POST(req: Request) {
   try {
-    const { name, color } = sanitize(await req.json()); // Sanitize the input to prevent NoSQL injection
-    console.log('POST request payload:', { name, color }); // Log the payload
+    const body = await req.json();
+    const sanitizedBody = {
+      name: sanitize(body.name),
+      color: sanitize(body.color),
+    };
 
-    if (!name || !color) {
-      console.error('Invalid payload:', { name, color });
-      return NextResponse.json({ error: 'Name and color are required' }, { status: 400 });
+    // Validate the sanitized input
+    const { error } = volunteerSchema.validate(sanitizedBody);
+    if (error) {
+      console.error('Validation error:', error.details);
+      return NextResponse.json({ error: 'Invalid input' }, { status: 400 });
     }
 
     await dbConnect();
 
-    const newVolunteer = new Volunteer({ name, color });
+    const newVolunteer = new Volunteer(sanitizedBody);
     await newVolunteer.save();
 
     console.log('Volunteer saved successfully:', newVolunteer);
@@ -26,7 +39,6 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Failed to save volunteer' }, { status: 500 });
   }
 }
-
 // this function handles GET requests to fetch all volunteers
 export async function GET() {
   try {
@@ -35,6 +47,7 @@ export async function GET() {
     // Fetch all volunteers and include only the name and color fields
     const volunteers = await Volunteer.find({}).select('name color').limit(20).skip(0);
 
+    // No sanitization needed here as we're only fetching data
     return NextResponse.json(volunteers, { status: 200 });
   } catch (error) {
     console.error('Error fetching volunteers:', error);
@@ -46,7 +59,7 @@ export async function GET() {
 export async function DELETE(req: Request) {
   try {
     const url = new URL(req.url);
-    const name = sanitize(url.searchParams.get('name')); // Extract 'name' from query parameters
+    const name = sanitize(url.searchParams.get('name')); // Sanitize the query parameter
 
     if (!name) {
       return NextResponse.json({ error: 'Volunteer name is required' }, { status: 400 });

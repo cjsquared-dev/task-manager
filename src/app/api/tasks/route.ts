@@ -5,6 +5,7 @@ import { Volunteer } from '../../../lib/models/Volunteer.model';
 import mongoose from 'mongoose';
 import Joi from 'joi';
 import sanitize from 'mongo-sanitize';
+import  DOMPurify  from 'dompurify';
 
 
 const taskSchema = Joi.object({
@@ -14,7 +15,7 @@ const taskSchema = Joi.object({
 // POST: Save a new task
 export async function POST(req: Request) {
   try {
-    const { name } = sanitize(await req.json());// Sanitize the input to prevent NoSQL injection
+    const { name } = JSON.parse(DOMPurify.sanitize(JSON.stringify(await req.json()))); // Sanitize the input to prevent NoSQL injection
     const {error} = await taskSchema.validate({ name });
     if (error) {
       console.error('Validation error:', error);
@@ -78,7 +79,7 @@ export async function DELETE(req: Request) {
     await dbConnect();
 
     const url = new URL(req.url);
-    const taskId = sanitize(url.searchParams.get('id')); // Extract 'id' from query parameters
+    const {taskId} = JSON.parse(DOMPurify.sanitize(JSON.stringify(url.searchParams.get('id')))); // Extract 'id' from query parameters
 
     console.log('DELETE request task ID:', taskId); // Log the task ID
     if (!taskId) {
