@@ -49,7 +49,7 @@ export async function GET() {
     await dbConnect();
 
     // Fetch all tasks
-    const tasks = await Task.find({}).lean(); // Use `.lean()` to get plain JavaScript objects
+    const tasks = await Task.find({}).limit(20).skip(0).lean(); // Use `.lean()` to get plain JavaScript objects
 
     // Populate volunteer data for each task
     for (const task of tasks) {
@@ -57,7 +57,7 @@ export async function GET() {
         // Resolve volunteer ObjectIds to their corresponding documents
         const populatedVolunteers = await Volunteer.find({
           _id: { $in: hourSlot.volunteers },
-        }).select('name color'); // Fetch only the name and color fields
+        }).select('name color').limit(20).skip(0); // Fetch only the name and color fields
 
         // Replace the ObjectIds with the populated volunteer data
         hourSlot.volunteers = populatedVolunteers;

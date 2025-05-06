@@ -33,7 +33,7 @@ export async function GET() {
     await dbConnect();
 
     // Fetch all volunteers and include only the name and color fields
-    const volunteers = await Volunteer.find({}).select('name color');
+    const volunteers = await Volunteer.find({}).select('name color').limit(20).skip(0);
 
     return NextResponse.json(volunteers, { status: 200 });
   } catch (error) {
