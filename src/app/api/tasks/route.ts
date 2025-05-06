@@ -3,17 +3,24 @@ import { dbConnect } from '../../../lib/db';
 import { Task } from '../../../lib/models/Task.model';
 import { Volunteer } from '../../../lib/models/Volunteer.model';
 import mongoose from 'mongoose';
+import Joi from 'joi';
+import sanitize from 'mongo-sanitize';
+
+
+const taskSchema = Joi.object({
+  name: Joi.string().min(1).max(50).required(),
+});
 
 // POST: Save a new task
 export async function POST(req: Request) {
   try {
-    const { name } = await req.json();
-    console.log('POST request payload:', { name }); // Log the payload
-
-    if (!name) {
-      console.error('Task name is required');
-      return NextResponse.json({ error: 'Task name is required' }, { status: 400 });
+    const { name } = sanitize(await req.json());// Sanitize the input to prevent NoSQL injection
+    const {error} = await taskSchema.validate({ name });
+    if (error) {
+      console.error('Validation error:', error);
+      return NextResponse.json({ error: 'Invalid task data' }, { status: 400 });
     }
+    console.log('POST request payload:', { name }); // Log the payload
 
     await dbConnect();
 
@@ -71,7 +78,7 @@ export async function DELETE(req: Request) {
     await dbConnect();
 
     const url = new URL(req.url);
-    const taskId = url.searchParams.get('id'); // Extract 'id' from query parameters
+    const taskId = sanitize(url.searchParams.get('id')); // Extract 'id' from query parameters
 
     console.log('DELETE request task ID:', taskId); // Log the task ID
     if (!taskId) {
@@ -93,7 +100,7 @@ export async function DELETE(req: Request) {
 // PATCH: Update task volunteers or add/remove hours
 export async function PATCH(req: Request) {
   try {
-    const { taskId, name, hourIndex, volunteer, action } = await req.json();
+    const { taskId, name, hourIndex, volunteer, action } = sanitize(await req.json()); // Sanitize the input to prevent NoSQL injection
     console.log('PATCH request payload:', { taskId, name, hourIndex, volunteer, action }); // Log the payload
 
     await dbConnect();

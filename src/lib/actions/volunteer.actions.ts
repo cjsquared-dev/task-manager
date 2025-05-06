@@ -1,4 +1,5 @@
 import { IVolunteer } from '@/lib/types/interfaces/volunteer.interface';
+import sanitize from 'mongo-sanitize';
 
 // Fetch all volunteers
 export const fetchVolunteers = async (): Promise<IVolunteer[]> => {
@@ -11,12 +12,14 @@ export const fetchVolunteers = async (): Promise<IVolunteer[]> => {
 
 // Add a new volunteer
 export const addVolunteer = async (name: string, color: string): Promise<IVolunteer> => {
+  const sanitizedName = sanitize(name);
+  const sanitizedColor = sanitize(color);
   const response = await fetch('/api/volunteers', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ name, color }),
+    body: JSON.stringify({ name:sanitizedName , color:sanitizedColor }),
   });
 
   if (!response.ok) {
@@ -28,7 +31,8 @@ export const addVolunteer = async (name: string, color: string): Promise<IVolunt
 
 // Delete a volunteer
 export const deleteVolunteer = async (name: string): Promise<void> => {
-  const response = await fetch(`/api/volunteers?name=${encodeURIComponent(name)}`, {
+  const sanitizedName = sanitize(name);
+  const response = await fetch(`/api/volunteers?name=${encodeURIComponent(sanitizedName)}`, {
     method: 'DELETE',
   });
 

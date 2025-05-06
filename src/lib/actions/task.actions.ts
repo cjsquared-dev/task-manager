@@ -1,4 +1,5 @@
 import { IVolunteer } from '@/lib/types/interfaces/volunteer.interface';
+import sanitize from 'mongo-sanitize';
 
 export const fetchTasks = async () => {
   const response = await fetch('/api/tasks');
@@ -9,12 +10,14 @@ export const fetchTasks = async () => {
 };
 
 export const updateTaskName = async (taskId: string, taskName: string) => {
+  const sanitizedTaskId = sanitize(taskId);
+  const sanitizedTaskName = sanitize(taskName);
   const response = await fetch('/api/tasks', {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ taskId, name: taskName }),
+    body: JSON.stringify({ sanitizedTaskId, name: sanitizedTaskName }),
   });
 
   if (!response.ok) {
@@ -26,7 +29,8 @@ export const updateTaskName = async (taskId: string, taskName: string) => {
 };
 
 export const deleteTask = async (taskId: string) => {
-  const response = await fetch(`/api/tasks?id=${taskId}`, {
+  const sanitizedTaskId = sanitize(taskId);
+  const response = await fetch(`/api/tasks?id=${sanitizedTaskId}`, {
     method: 'DELETE',
   });
 
@@ -39,12 +43,13 @@ export const deleteTask = async (taskId: string) => {
 };
 
 export const createTask = async (taskName: string) => {
+  const sanitizedTaskName = sanitize(taskName);
   const response = await fetch('/api/tasks', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
     },
-    body: JSON.stringify({ name: taskName }),
+    body: JSON.stringify({ name: sanitizedTaskName }),
   });
 
   if (!response.ok) {
@@ -59,15 +64,20 @@ export const assignVolunteer = async (
   hourIndex: number,
   volunteer: IVolunteer
 ) => {
+
+  const sanitizedTaskId = sanitize(taskId);
+  const sanitizedHourIndex = sanitize(hourIndex);
+  const sanitizedVolunteer = sanitize(volunteer);
+
   const response = await fetch('/api/tasks', {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      taskId,
-      hourIndex,
-      volunteer,
+      taskId: sanitizedTaskId,
+      hourIndex: sanitizedHourIndex,
+      volunteer: sanitizedVolunteer,
       action: 'add',
     }),
   });
@@ -85,15 +95,20 @@ export const removeVolunteer = async (
   hourIndex: number,
   volunteerName: string
 ) => {
+
+  const sanitizedTaskId = sanitize(taskId);
+  const sanitizedHourIndex = sanitize(hourIndex);
+  const sanitizedVolunteerName = sanitize(volunteerName);
+
   const response = await fetch('/api/tasks', {
     method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      taskId,
-      hourIndex,
-      volunteer: { name: volunteerName },
+      taskId: sanitizedTaskId,
+      hourIndex: sanitizedHourIndex,
+      volunteer: { name: sanitizedVolunteerName },
       action: 'remove',
     }),
   });
@@ -107,16 +122,18 @@ export const removeVolunteer = async (
 };
 
 export const addHour = async (taskIds: string[], hourIndex: number) => {
+  const sanitizedHourIndex = sanitize(hourIndex);
   for (const taskId of taskIds) {
+    const sanitizedTaskId = sanitize(taskId);
     const response = await fetch('/api/tasks', {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        taskId,
+        taskId: sanitizedTaskId,
         action: 'addHour',
-        hourIndex,
+        hourIndex: sanitizedHourIndex,
       }),
     });
 
@@ -128,16 +145,18 @@ export const addHour = async (taskIds: string[], hourIndex: number) => {
 };
 
 export const removeHour = async (taskIds: string[], hourIndex: number) => {
+  const sanitizedHourIndex = sanitize(hourIndex);
   for (const taskId of taskIds) {
+    const sanitizedTaskId = sanitize(taskId);
     const response = await fetch('/api/tasks', {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        taskId,
+        taskId: sanitizedTaskId,
         action: 'removeHour',
-        hourIndex,
+        hourIndex: sanitizedHourIndex,
       }),
     });
 

@@ -1,11 +1,12 @@
 import { NextResponse } from 'next/server';
 import { dbConnect } from '../../../lib/db';
 import { Volunteer } from '../../../lib/models/Volunteer.model';
+import sanitize from 'mongo-sanitize';
 
 // This function handles POST requests to save a new volunteer
 export async function POST(req: Request) {
   try {
-    const { name, color } = await req.json();
+    const { name, color } = sanitize(await req.json()); // Sanitize the input to prevent NoSQL injection
     console.log('POST request payload:', { name, color }); // Log the payload
 
     if (!name || !color) {
@@ -45,7 +46,7 @@ export async function GET() {
 export async function DELETE(req: Request) {
   try {
     const url = new URL(req.url);
-    const name = url.searchParams.get('name'); // Extract 'name' from query parameters
+    const name = sanitize(url.searchParams.get('name')); // Extract 'name' from query parameters
 
     if (!name) {
       return NextResponse.json({ error: 'Volunteer name is required' }, { status: 400 });

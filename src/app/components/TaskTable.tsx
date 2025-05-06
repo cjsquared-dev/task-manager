@@ -117,8 +117,8 @@ const TaskTable: React.FC<TaskTableProps> = ({ fetchVolunteers, volunteers }) =>
 
   const handleSaveTaskName = async (index: number) => {
     const taskName = taskNames[index];
-    if (!taskName.trim()) {
-      alert('Task name is required');
+    if (!taskName.trim() || taskName.length > 50) {
+      alert('Task name is required and must be less than 50 characters.');
       return;
     }
     try {
